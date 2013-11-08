@@ -15,6 +15,8 @@ set( INC_DIR "${PROJECT_SOURCE_DIR}/include/" )
 include_directories( ${INC_DIR} )
 
 set( SOURCES
+	${INC_DIR}/random.hpp
+	${INC_DIR}/random.inl
 	${SRC_DIR}/main.cpp
 )
 
