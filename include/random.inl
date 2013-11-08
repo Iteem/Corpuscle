@@ -15,9 +15,9 @@ sf::Vector3f uniformOnSphere( Generator& gen )
 	float u = uDist( gen );
 
 	// cos^2(phi) + sin^2(phi) = 1 (and u = cos(phi))
-	// this way we can avoid to call arccos to calculate sin(phi)
+	// This way we can avoid to call arccos to calculate sin(phi)
 	float sinephi = std::sqrt( 1 - u*u );
 
-	// return result in Cartesian coordinates
+	// Return result in Cartesian coordinates.
 	return sf::Vector3f( sinephi * std::cos( phi ), sinephi * std::sin( phi ), u);
 }

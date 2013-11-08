@@ -17,7 +17,11 @@ include_directories( ${INC_DIR} )
 set( SOURCES
 	${INC_DIR}/random.hpp
 	${INC_DIR}/random.inl
+	${INC_DIR}/ray.hpp
+	${INC_DIR}/sphere.hpp
 	${SRC_DIR}/main.cpp
+	${SRC_DIR}/ray.cpp
+	${SRC_DIR}/sphere.cpp
 )
 
 # GCC

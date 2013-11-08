@@ -3,8 +3,10 @@
 #include <random>
 
 #include <SFML/Graphics.hpp>
+#include <Thor/Vectors.hpp>
 
 #include "random.hpp"
+#include "sphere.hpp"
 
 int main()
 {
@@ -13,6 +15,7 @@ int main()
 
 	std::mt19937 gen( std::time( nullptr ) );
 
+	// test uniformOnSphere
 	sf::Image img;
 	img.create( 100, 100, sf::Color::Black );
 
@@ -27,6 +30,14 @@ int main()
 	tex.loadFromImage( img );
 	sf::Sprite sprite( tex );
 	sprite.setScale(4, 4);
+
+	// test Sphere::intersect
+	Sphere s( 0.5f, sf::Vector3f(1, 1, 1) );
+	Ray r1( sf::Vector3f(), sf::Vector3f( 1, 0, 0 ) );
+	Ray r2( sf::Vector3f(), thor::unitVector( sf::Vector3f( 1, 1, 1) ) );
+
+	std::cout << "Ray one " << (s.intersect(r1) ? "does" : "doesn't") << " intersect with the Sphere!" << std::endl;
+	std::cout << "Ray two " << (s.intersect(r2) ? "does" : "doesn't") << " intersect with the Sphere!" << std::endl;
 
 	// main loop
 	while( window.isOpen() ){
