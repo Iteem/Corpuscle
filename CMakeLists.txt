@@ -19,6 +19,8 @@ set( SOURCES
 	${INC_DIR}/random.inl
 	${INC_DIR}/ray.hpp
 	${INC_DIR}/sphere.hpp
+	${INC_DIR}/utility.hpp
+	${INC_DIR}/utility.inl
 	${SRC_DIR}/main.cpp
 	${SRC_DIR}/ray.cpp
 	${SRC_DIR}/sphere.cpp

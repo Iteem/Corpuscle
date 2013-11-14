@@ -7,6 +7,7 @@
 
 #include "random.hpp"
 #include "sphere.hpp"
+#include "utility.hpp"
 
 int main()
 {
