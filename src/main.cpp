@@ -52,7 +52,12 @@ int main()
 				}
 			}
 
-			sf::Vector3i col( clamp( spheres[id]->getColor() ) * 255.f );
+
+			sf::Vector3f vecToLight = thor::unitVector( sf::Vector3f(50,81.6-16.5,81.6) - ray.evaluate( t ) );
+			sf::Vector3f collisionNormal = *( spheres[id]->collisionNormal( ray ) );
+			float lightFactor = ( thor::dotProduct( vecToLight, collisionNormal ) + 1.f ) / 2.f;
+
+			sf::Vector3i col( clamp( spheres[id]->getColor() ) * 255.f * lightFactor );
 
 			img.setPixel( x, 600 - y - 1, sf::Color( col.x, col.y, col.z) );
 		}

@@ -36,7 +36,11 @@ boost::optional<float> Sphere::intersect( const Ray& ray ) const
 }
 
 
-boost::optional<float> Sphere::collisionNormal( const Ray& ray ) const
+boost::optional<sf::Vector3f> Sphere::collisionNormal( const Ray& ray ) const
 {
-	return boost::optional<float>();
+	boost::optional<float> time = intersect( ray );
+	if( !time )
+		return boost::optional<sf::Vector3f>();
+
+	return thor::unitVector( ray.evaluate( *time ) - center );
 }

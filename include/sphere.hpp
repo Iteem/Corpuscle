@@ -13,7 +13,7 @@ public:
 	virtual ~Sphere();
 
 	virtual boost::optional<float> intersect( const Ray& ray ) const;
-	virtual boost::optional<float> collisionNormal( const Ray& ray ) const;
+	virtual boost::optional<sf::Vector3f> collisionNormal( const Ray& ray ) const;
 
 	float radius;
 	sf::Vector3f center;

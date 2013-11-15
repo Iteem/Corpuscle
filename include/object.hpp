@@ -16,7 +16,7 @@ public:
 	void setColor( const sf::Vector3f& color );
 
 	virtual boost::optional<float> intersect( const Ray& ray ) const = 0;
-	virtual boost::optional<float> collisionNormal( const Ray& ray ) const = 0;
+	virtual boost::optional<sf::Vector3f> collisionNormal( const Ray& ray ) const = 0;
 
 private:
 	sf::Vector3f m_color;
