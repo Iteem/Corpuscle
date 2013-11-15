@@ -5,7 +5,8 @@
 
 #include <Thor/Vectors/VectorAlgebra3D.hpp>
 
-Sphere::Sphere( float radius, sf::Vector3f center ) :
+Sphere::Sphere( float radius, sf::Vector3f center, sf::Vector3f color ) :
+	Object( color ),
 	radius( radius ),
 	center( center )
 {
@@ -16,7 +17,7 @@ Sphere::~Sphere()
 }
 
 
-boost::optional<float> Sphere::intersect( const Ray& ray )
+boost::optional<float> Sphere::intersect( const Ray& ray ) const
 {
 	// This way we can ignore the origin of the ray.
 	sf::Vector3f op = center - ray.origin;
@@ -32,4 +33,10 @@ boost::optional<float> Sphere::intersect( const Ray& ray )
 
 	D = std::sqrt( D );
 	return std::min( b - D, b + D );
+}
+
+
+boost::optional<float> Sphere::collisionNormal( const Ray& ray ) const
+{
+	return boost::optional<float>();
 }

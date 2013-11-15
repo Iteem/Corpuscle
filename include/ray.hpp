@@ -8,6 +8,8 @@ struct Ray
 	Ray( sf::Vector3f origin, sf::Vector3f direction );
 	~Ray();
 
+	sf::Vector3f evaluate( float time ) const;
+
 	sf::Vector3f origin;
 	sf::Vector3f direction;
 };
