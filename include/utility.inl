@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 
 template< typename T >
 T clamp( T param )
@@ -12,6 +13,15 @@ sf::Vector3<T> clamp( sf::Vector3<T> vec )
 	return sf::Vector3f( clamp( vec.x ),
 						 clamp( vec.y ),
 						 clamp( vec.z ) );
+}
+
+
+template< typename T >
+sf::Vector3<T> gammmaCorrected( sf::Vector3<T> col, T param )
+{
+	return sf::Vector3f( std::pow( col.x, param ),
+						 std::pow( col.y, param ),
+						 std::pow( col.z, param ) );
 }
 
 template<typename T, typename... Args>

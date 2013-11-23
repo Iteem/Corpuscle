@@ -1,7 +1,8 @@
 #include "object.hpp"
 
-Object::Object( sf::Vector3f color ) :
-	m_color( color )
+Object::Object( sf::Vector3f color, sf::Vector3f emission ) :
+	m_color( color ),
+	m_emission( emission )
 {
 }
 
@@ -17,4 +18,14 @@ sf::Vector3f Object::getColor() const
 void Object::setColor( const sf::Vector3f& color )
 {
 	m_color = color;
+}
+
+sf::Vector3f Object::getEmission() const
+{
+	return m_emission;
+}
+
+void Object::setEmission( const sf::Vector3f& emission )
+{
+	m_emission = emission;
 }

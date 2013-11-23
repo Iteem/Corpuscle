@@ -9,7 +9,7 @@
 class Sphere : public Object
 {
 public:
-	Sphere( float radius, sf::Vector3f center, sf::Vector3f color = sf::Vector3f() );
+	Sphere( float radius, sf::Vector3f center, sf::Vector3f color = sf::Vector3f(), sf::Vector3f emission = sf::Vector3f() );
 	virtual ~Sphere();
 
 	virtual boost::optional<float> intersect( const Ray& ray ) const;

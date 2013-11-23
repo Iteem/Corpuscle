@@ -5,8 +5,8 @@
 
 #include <Thor/Vectors/VectorAlgebra3D.hpp>
 
-Sphere::Sphere( float radius, sf::Vector3f center, sf::Vector3f color ) :
-	Object( color ),
+Sphere::Sphere( float radius, sf::Vector3f center, sf::Vector3f color, sf::Vector3f emission ) :
+	Object( color, emission ),
 	radius( radius ),
 	center( center )
 {
