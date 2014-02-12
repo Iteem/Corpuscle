@@ -19,18 +19,18 @@ const sf::Vector2i screen( 800, 600 );
 sf::Vector3f radiance( Ray ray, int depth, unsigned int prevId )
 {
 	// find collision
-	float t = 1e20;
+	float t = inf;
 	size_t id = 0;
 	for( unsigned int i = 0; i < spheres.size(); ++i ){
-		boost::optional<float> tmp = spheres[i]->intersect( ray );
-		if( tmp && *tmp < t && *tmp > 0.f && i != prevId ){
-			t = *tmp;
+		float tmp = spheres[i]->intersect( ray );
+		if( tmp < t && tmp > 0.f && i != prevId ){
+			t = tmp;
 			id = i;
 		}
 	}
 
 	// no collision, return black
-	if( t == 1e20 ){
+	if( t == inf ){
 		return sf::Vector3f();
 	}
 
@@ -40,7 +40,7 @@ sf::Vector3f radiance( Ray ray, int depth, unsigned int prevId )
 	}
 
 	// calculate new ray
-	sf::Vector3f normal( *spheres[id]->collisionNormal( ray ) );
+	sf::Vector3f normal( spheres[id]->collisionNormal( ray ) );
 
 	ray.origin = ray.evaluate( t );
 

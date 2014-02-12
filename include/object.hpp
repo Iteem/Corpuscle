@@ -18,8 +18,8 @@ public:
 	sf::Vector3f getEmission() const;
 	void setEmission( const sf::Vector3f& emission );
 
-	virtual boost::optional<float> intersect( const Ray& ray ) const = 0;
-	virtual boost::optional<sf::Vector3f> collisionNormal( const Ray& ray ) const = 0;
+	virtual float intersect( const Ray& ray ) const = 0;
+	virtual sf::Vector3f collisionNormal( const Ray& ray ) const = 0;
 
 private:
 	sf::Vector3f m_color;

@@ -1,6 +1,7 @@
 #ifndef UTILITY_HPP_INCLUDED
 #define UTILITY_HPP_INCLUDED
 
+#include <limits>
 #include <memory>
 
 // clamps value between 0 and 1
@@ -12,6 +13,8 @@ sf::Vector3<T> gammmaCorrected( sf::Vector3<T> col, T param );
 
 template<typename T, typename... Args>
 std::unique_ptr<T> make_unique(Args&&... args);
+
+const float inf = std::numeric_limits<float>::infinity();
 
 #include "utility.inl"
 
