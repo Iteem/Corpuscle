@@ -7,8 +7,8 @@
 
 #include "utility.hpp"
 
-Sphere::Sphere( float radius, sf::Vector3f center, sf::Vector3f color, sf::Vector3f emission ) :
-	Object( color, emission ),
+Sphere::Sphere( float radius, sf::Vector3f center, sf::Vector3f color, sf::Vector3f emission, Material material ) :
+	Object( color, emission, material ),
 	radius( radius ),
 	center( center )
 {
