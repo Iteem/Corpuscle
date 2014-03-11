@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include <Thor/Vectors.hpp>
 
+#include "cube.hpp"
 #include "random.hpp"
 #include "sphere.hpp"
 #include "utility.hpp"
@@ -88,8 +89,10 @@ int main()
 	spheres.emplace_back( make_unique<Sphere>( 1e5f,  sf::Vector3f( 50,1e5+81.6,81.6 ), sf::Vector3f(.75f,.75f,.75f) ) );
 	spheres.emplace_back( make_unique<Sphere>( 16.5f, sf::Vector3f( 27,16.5,47 ),       sf::Vector3f(1,1,1)*.999f, sf::Vector3f(), Material( Material::Type::Specular ) ) );
 	spheres.emplace_back( make_unique<Sphere>(   5.f, sf::Vector3f( 40,   5,85 ),       sf::Vector3f(0.8f, 0.5f, 0.2f), sf::Vector3f(), Material( Material::Type::Glossy, 0.6f ) ) );
-	spheres.emplace_back( make_unique<Sphere>( 16.5f, sf::Vector3f( 73,16.5,78 ),       sf::Vector3f(1,1,1)*.999f ) );
-	spheres.emplace_back( make_unique<Sphere>( 600.f, sf::Vector3f(50,681.6-.27,81.6),  sf::Vector3f(1,1,1), sf::Vector3f(1,1,1)*10.f ) );
+	//spheres.emplace_back( make_unique<Sphere>( 16.5f, sf::Vector3f( 73,16.5,78 ),       sf::Vector3f(1,1,1)*.999f ) );
+	spheres.emplace_back( make_unique<Cube>( sf::Vector3f(60,0,60), sf::Vector3f(90,30,90),       sf::Vector3f(.25f,.75f,.25f) ) );
+	//spheres.emplace_back( make_unique<Sphere>( 600.f, sf::Vector3f(50,681.6-.27,81.6),  sf::Vector3f(1,1,1), sf::Vector3f(1,1,1)*10.f ) );
+	spheres.emplace_back( make_unique<Cube>( sf::Vector3f(30,81,40), sf::Vector3f(70,82,80), sf::Vector3f(1,1,1), sf::Vector3f(1,1,1)*10.f ) );
 
 	std::vector< sf::Vector3f > pixels( screen.x*screen.y );
 	unsigned int samples = 0;
