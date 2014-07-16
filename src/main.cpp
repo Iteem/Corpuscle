@@ -10,9 +10,10 @@
 #include "cube.hpp"
 #include "random.hpp"
 #include "sphere.hpp"
+#include "scene.hpp"
 #include "utility.hpp"
 
-std::vector<std::unique_ptr<Object>> spheres;
+Scene scene;
 std::mt19937 gen;
 
 const sf::Vector2i screen( 800, 600 );
@@ -29,18 +30,11 @@ sf::Vector3f diffuseReflection( const sf::Vector3f &normal )
 	return d > 0.f ? randomVec : randomVec - 2.f * d * normal;
 }
 
-sf::Vector3f radiance( Ray ray, int depth, unsigned int prevId )
+sf::Vector3f radiance( Ray ray, int depth, const Object *prevObject = nullptr )
 {
-	// find collision
-	float t = inf;
-	size_t id = 0;
-	for( unsigned int i = 0; i < spheres.size(); ++i ){
-		float tmp = spheres[i]->intersect( ray );
-		if( tmp < t && tmp > 0.f && i != prevId ){
-			t = tmp;
-			id = i;
-		}
-	}
+	auto collisionPair = scene.getCollision( ray, prevObject );
+	float t = collisionPair.first;
+	const Object *obj = collisionPair.second;
 
 	// no collision, return black
 	if( t == inf ){
@@ -49,15 +43,15 @@ sf::Vector3f radiance( Ray ray, int depth, unsigned int prevId )
 
 	// maximal depth, return emission only
 	if( --depth < 0 ){
-		return spheres[id]->getEmission();
+		return obj->getEmission();
 	}
 
 	// calculate new ray
-	sf::Vector3f normal( spheres[id]->collisionNormal( ray ) );
+	sf::Vector3f normal( obj->collisionNormal( ray ) );
 
 	ray.origin = ray.evaluate( t );
 
-	switch( spheres[id]->getMaterial().type ){
+	switch( obj->getMaterial().type ){
 		case Material::Type::Diffuse:
 			ray.direction = diffuseReflection( normal );
 			break;
@@ -65,11 +59,11 @@ sf::Vector3f radiance( Ray ray, int depth, unsigned int prevId )
 			ray.direction = specularReflection( ray.direction, normal );
 			break;
 		case Material::Type::Glossy:
-			ray.direction = thor::unitVector( (1 - spheres[id]->getMaterial().factor) * diffuseReflection( normal ) + spheres[id]->getMaterial().factor * specularReflection( ray.direction, normal ) );
+			ray.direction = thor::unitVector( (1 - obj->getMaterial().factor) * diffuseReflection( normal ) + obj->getMaterial().factor * specularReflection( ray.direction, normal ) );
 	}
 
 
-	return spheres[id]->getEmission() + thor::cwiseProduct( spheres[id]->getColor(), radiance( ray, depth - 1, id ) );
+	return obj->getEmission() + thor::cwiseProduct( obj->getColor(), radiance( ray, depth - 1, obj ) );
 }
 
 int main()
@@ -79,20 +73,6 @@ int main()
 
 	gen.seed( std::time( nullptr ) );
 	std::uniform_real_distribution<float> dist( -1.f, 1.f );
-
-	// initialize scene
-	spheres.emplace_back( make_unique<Sphere>( 1e5f,  sf::Vector3f( -1e5+1,40.8,81.6 ), sf::Vector3f(.75f,.25f,.25f) ) );
-	spheres.emplace_back( make_unique<Sphere>( 1e5f,  sf::Vector3f( 1e5+99,40.8,81.6 ), sf::Vector3f(.25f,.25f,.75f) ) );
-	spheres.emplace_back( make_unique<Sphere>( 1e5f,  sf::Vector3f( 50,40.8, -1e5 ),    sf::Vector3f(.75f,.75f,.75f) ) );
-	spheres.emplace_back( make_unique<Sphere>( 1e5f,  sf::Vector3f( 50,40.8,1e5+200 ),  sf::Vector3f(0.f,0.f,0.f) ) );
-	spheres.emplace_back( make_unique<Sphere>( 1e5f,  sf::Vector3f( 50, -1e5, 81.6 ),   sf::Vector3f(.75f,.75f,.75f) ) );
-	spheres.emplace_back( make_unique<Sphere>( 1e5f,  sf::Vector3f( 50,1e5+81.6,81.6 ), sf::Vector3f(.75f,.75f,.75f) ) );
-	spheres.emplace_back( make_unique<Sphere>( 16.5f, sf::Vector3f( 27,16.5,47 ),       sf::Vector3f(1,1,1)*.999f, sf::Vector3f(), Material( Material::Type::Specular ) ) );
-	spheres.emplace_back( make_unique<Sphere>(   5.f, sf::Vector3f( 40,   5,85 ),       sf::Vector3f(0.8f, 0.5f, 0.2f), sf::Vector3f(), Material( Material::Type::Glossy, 0.6f ) ) );
-	//spheres.emplace_back( make_unique<Sphere>( 16.5f, sf::Vector3f( 73,16.5,78 ),       sf::Vector3f(1,1,1)*.999f ) );
-	spheres.emplace_back( make_unique<Cube>( sf::Vector3f(60,0,60), sf::Vector3f(90,30,90),       sf::Vector3f(.25f,.75f,.25f) ) );
-	//spheres.emplace_back( make_unique<Sphere>( 600.f, sf::Vector3f(50,681.6-.27,81.6),  sf::Vector3f(1,1,1), sf::Vector3f(1,1,1)*10.f ) );
-	spheres.emplace_back( make_unique<Cube>( sf::Vector3f(30,81,40), sf::Vector3f(70,82,80), sf::Vector3f(1,1,1), sf::Vector3f(1,1,1)*10.f ) );
 
 	std::vector< sf::Vector3f > pixels( screen.x*screen.y );
 	unsigned int samples = 0;
@@ -125,7 +105,7 @@ int main()
 
 					Ray ray( sf::Vector3f( 50.f, 45.f, 295.f ), thor::unitVector( sf::Vector3f(xpart, ypart, -1.f) ) );
 
-					pixels[x + screen.x * y] += radiance( ray, 5, -1 );
+					pixels[x + screen.x * y] += radiance( ray, 5 );
 				}
 			}
 		}

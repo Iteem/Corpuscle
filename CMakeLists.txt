@@ -20,6 +20,7 @@ set( SOURCES
 	${INC_DIR}/random.hpp
 	${INC_DIR}/random.inl
 	${INC_DIR}/ray.hpp
+	${INC_DIR}/scene.hpp
 	${INC_DIR}/sphere.hpp
 	${INC_DIR}/utility.hpp
 	${INC_DIR}/utility.inl
@@ -27,6 +28,7 @@ set( SOURCES
 	${SRC_DIR}/main.cpp
 	${SRC_DIR}/object.cpp
 	${SRC_DIR}/ray.cpp
+	${SRC_DIR}/scene.cpp
 	${SRC_DIR}/sphere.cpp
 )
 
