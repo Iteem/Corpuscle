@@ -3,6 +3,10 @@
 
 #include <limits>
 #include <memory>
+#include <string>
+
+#include <SFML/System/Vector3.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 // clamps value between 0 and 1
 template< typename T >
@@ -15,6 +19,8 @@ template<typename T, typename... Args>
 std::unique_ptr<T> make_unique(Args&&... args);
 
 const float inf = 1e20;
+
+sf::Vector3f parseVector( const std::string &str, const sf::Vector3f& defaultValue = sf::Vector3f() );
 
 #include "utility.inl"
 

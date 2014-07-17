@@ -1,0 +1,69 @@
+{
+	"objects":
+	[
+		{
+			"type": "cube",
+			"min": "-1 0 0",  
+			"max": "0 80 200",
+			"color": ".75 .25 .25f"
+		},
+		{
+			"type": "cube",
+			"min": "100 0 0",  
+			"max": "101 80 200",
+			"color": ".25 .25 .75"
+		},
+		{ 
+			"type": "cube",
+			"min": "0 0 -1",  
+			"max": "100 80 0",
+			"color": ".75 .75 .75"
+		},
+		{ 
+			"type": "cube",
+			"min": "0 0 300",  
+			"max": "100 80 301",
+			"color": ".75 .75 .75"
+		},
+		{ 
+			"type": "cube",
+			"min": "0 -1 0",  
+			"max": "100 0 300",
+			"color": ".75 .75 .75"
+		},
+		{ 
+			"type": "cube",
+			"min": "0 80 0",  
+			"max": "100 81 300",
+			"color": ".75 .75 .75"
+		},
+		{ 
+			"type": "sphere",
+			"radius": 16.5,  
+			"pos": "27 16.5 47",
+			"color": ".999 .999 .999",
+			"material": "specular"
+		},
+		{   
+			"type": "sphere",
+			"radius": 5,  
+			"pos": "40 5 85",
+			"color": "0.8 0.5 0.2",
+			"material": "glossy",
+			"glossiness": 0.5
+		},
+		{   
+			"type": "cube",
+			"min": "60 0 60",
+			"max": "90 30 90",
+			"color": "0.25 0.75 0.25"
+		},
+		{   
+			"type": "cube",
+			"min": "30 79 40",
+			"max": "70 80 80",
+			"color": "1 1 1",
+			"emission": "10 10 10"
+		}
+	]
+}

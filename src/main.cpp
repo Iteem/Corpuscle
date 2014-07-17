@@ -84,6 +84,8 @@ int main()
 	tex.loadFromImage( img );
 	sf::Sprite sprite( tex );
 
+	scene.loadFromJSON( "data/scene.json" );
+
 	// main loop
 	while( window.isOpen() ){
 		// event loop

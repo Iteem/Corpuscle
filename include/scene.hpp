@@ -15,6 +15,8 @@ class Scene
 
 		std::pair<float, const Object *> getCollision( const Ray &ray, const Object *prevObject );
 
+		bool loadFromJSON( const std::string &path );
+
 	 private:
 		std::vector< std::unique_ptr<Object> > m_objects;
 };

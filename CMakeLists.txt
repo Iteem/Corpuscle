@@ -30,6 +30,7 @@ set( SOURCES
 	${SRC_DIR}/ray.cpp
 	${SRC_DIR}/scene.cpp
 	${SRC_DIR}/sphere.cpp
+	${SRC_DIR}/utility.cpp
 )
 
 # GCC
