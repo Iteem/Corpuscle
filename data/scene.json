@@ -2,37 +2,37 @@
 	"objects":
 	[
 		{
-			"type": "cube",
+			"type": "cuboid",
 			"min": "-1 0 0",  
 			"max": "0 80 200",
 			"color": ".75 .25 .25f"
 		},
 		{
-			"type": "cube",
+			"type": "cuboid",
 			"min": "100 0 0",  
-			"max": "101 80 200",
+			"max": "101 80 300",
 			"color": ".25 .25 .75"
 		},
 		{ 
-			"type": "cube",
+			"type": "cuboid",
 			"min": "0 0 -1",  
 			"max": "100 80 0",
 			"color": ".75 .75 .75"
 		},
 		{ 
-			"type": "cube",
+			"type": "cuboid",
 			"min": "0 0 300",  
 			"max": "100 80 301",
 			"color": ".75 .75 .75"
 		},
 		{ 
-			"type": "cube",
+			"type": "cuboid",
 			"min": "0 -1 0",  
 			"max": "100 0 300",
 			"color": ".75 .75 .75"
 		},
 		{ 
-			"type": "cube",
+			"type": "cuboid",
 			"min": "0 80 0",  
 			"max": "100 81 300",
 			"color": ".75 .75 .75"
@@ -53,13 +53,14 @@
 			"glossiness": 0.5
 		},
 		{   
-			"type": "cube",
+			"type": "cuboid",
 			"min": "60 0 60",
 			"max": "90 30 90",
-			"color": "0.25 0.75 0.25"
+			"color": "0.25 0.75 0.25",
+			"material": "specular"
 		},
 		{   
-			"type": "cube",
+			"type": "cuboid",
 			"min": "30 79 40",
 			"max": "70 80 80",
 			"color": "1 1 1",

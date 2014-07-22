@@ -7,7 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include <Thor/Vectors.hpp>
 
-#include "cube.hpp"
+#include "cuboid.hpp"
 #include "random.hpp"
 #include "sphere.hpp"
 #include "scene.hpp"

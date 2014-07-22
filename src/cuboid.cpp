@@ -1,4 +1,4 @@
-#include "cube.hpp"
+#include "cuboid.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -7,19 +7,19 @@
 
 #include "utility.hpp"
 
-Cube::Cube( sf::Vector3f min, sf::Vector3f max, sf::Vector3f color, sf::Vector3f emission, Material material ) :
+Cuboid::Cuboid( sf::Vector3f min, sf::Vector3f max, sf::Vector3f color, sf::Vector3f emission, Material material ) :
 	Object( color, emission, material ),
 	min( min ),
 	max( max )
 {
 }
 
-Cube::~Cube()
+Cuboid::~Cuboid()
 {
 }
 
 
-float Cube::intersect( const Ray& ray ) const
+float Cuboid::intersect( const Ray& ray ) const
 {
 	sf::Vector3f invdir( thor::cwiseQuotient( sf::Vector3f( 1.f, 1.f, 1.f ), ray.direction ) );
 	std::pair<float, float> t = std::minmax( ( min.x - ray.origin.x) * invdir.x, ( max.x - ray.origin.x) * invdir.x );
@@ -47,7 +47,7 @@ float Cube::intersect( const Ray& ray ) const
 }
 
 
-sf::Vector3f Cube::collisionNormal( const Ray& ray ) const
+sf::Vector3f Cuboid::collisionNormal( const Ray& ray ) const
 {
 	sf::Vector3f p( ray.evaluate( intersect( ray ) ) );
 
