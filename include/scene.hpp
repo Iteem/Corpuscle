@@ -13,7 +13,7 @@ class Scene
 		Scene();
 		~Scene();
 
-		std::pair<float, const Object *> getCollision( const Ray &ray, const Object *prevObject );
+		std::pair<float, const Object *> getCollision( const Ray &ray, const Object *prevObject ) const;
 
 		bool loadFromJSON( const std::string &path );
 

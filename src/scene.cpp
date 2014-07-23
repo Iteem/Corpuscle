@@ -18,7 +18,7 @@ Scene::~Scene()
 {
 }
 
-std::pair<float, const Object *> Scene::getCollision( const Ray &ray, const Object *prevObject )
+std::pair<float, const Object *> Scene::getCollision( const Ray &ray, const Object *prevObject ) const
 {
 	float t = inf;
 	Object * obj = nullptr;
