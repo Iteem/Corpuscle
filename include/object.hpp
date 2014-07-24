@@ -37,6 +37,7 @@ public:
 
 	virtual float intersect( const Ray& ray ) const = 0;
 	virtual sf::Vector3f collisionNormal( const Ray& ray ) const = 0;
+	virtual sf::Vector3f collisionColor( const Ray& ray ) const = 0;
 
 	Material getMaterial() const;
 	void setMaterial( Material material );

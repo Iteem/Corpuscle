@@ -2,9 +2,12 @@
 
 #include <exception>
 #include <iostream>
+#include <memory>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+
+#include <SFML/Graphics/Image.hpp>
 
 #include "cuboid.hpp"
 #include "sphere.hpp"
@@ -67,6 +70,7 @@ bool Scene::loadFromJSON( const std::string &path )
 			material.factor = obj.second.get( "glossiness", 0.5f );
         }
 
+
 		// Load type dependent properties and add the object to the scene.
 		std::string type( obj.second.get( "type", "" ) );
 
@@ -74,7 +78,19 @@ bool Scene::loadFromJSON( const std::string &path )
 			sf::Vector3f min = parseVector( obj.second.get( "min", "") );
 			sf::Vector3f max = parseVector( obj.second.get( "max", "") );
 
-			m_objects.emplace_back( make_unique<Cuboid>( min, max, color, emission, material ) );
+			auto cuboid = make_unique<Cuboid>( min, max, color, emission, material );
+
+			std::string imagePath = obj.second.get( "texture", "" );
+			if( imagePath != "" ){
+				cuboid->texture = std::make_shared<sf::Image>();
+
+				if( !cuboid->texture->loadFromFile( imagePath ) ){
+					// Loading failed, reset the pointer.
+					cuboid->texture.reset();
+				}
+			}
+
+			m_objects.emplace_back( std::move( cuboid ) );
 		} else if ( type == "sphere" ){
 			sf::Vector3f pos = parseVector( obj.second.get( "pos", "") );
 			float radius = obj.second.get( "radius", 0.f );

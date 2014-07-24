@@ -46,3 +46,9 @@ sf::Vector3f Sphere::collisionNormal( const Ray& ray ) const
 
 	return thor::unitVector( ray.evaluate( time ) - center );
 }
+
+
+sf::Vector3f Sphere::collisionColor( const Ray& ray ) const
+{
+	return getColor();
+}

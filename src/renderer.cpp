@@ -126,6 +126,7 @@ sf::Vector3f Renderer::radiance( Ray ray, int depth, const Object *prevObject ) 
 
 	// calculate new ray
 	sf::Vector3f normal( obj->collisionNormal( ray ) );
+	sf::Vector3f color( obj->collisionColor( ray ) );
 
 	ray.origin = ray.evaluate( t );
 
@@ -141,5 +142,5 @@ sf::Vector3f Renderer::radiance( Ray ray, int depth, const Object *prevObject ) 
 	}
 
 
-	return obj->getEmission() + thor::cwiseProduct( obj->getColor(), radiance( ray, depth - 1, obj ) );
+	return obj->getEmission() + thor::cwiseProduct( color, radiance( ray, depth - 1, obj ) );
 }

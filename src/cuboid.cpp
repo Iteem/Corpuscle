@@ -82,3 +82,65 @@ sf::Vector3f Cuboid::collisionNormal( const Ray& ray ) const
 
 	return normal;
 }
+
+sf::Vector3f Cuboid::collisionColor( const Ray& ray ) const
+{
+	// In case no texture is set return the color of the object.
+	if( !texture ){
+		return getColor();
+	}
+
+	sf::Vector3f p( ray.evaluate( intersect( ray ) ) );
+
+	int side = 0;
+	float d = std::abs( min.x - p.x );
+
+	float tmp = std::abs( min.y - p.y );
+	if( tmp < d ){
+		d = tmp;
+		side = 1;
+	}
+	tmp = std::abs( min.z - p.z );
+	if( tmp < d ){
+		d = tmp;
+		side = 2;
+	}
+	tmp = std::abs( max.x - p.x );
+	if( tmp < d ){
+		d = tmp;
+		side = 3;
+	}
+	tmp = std::abs( max.y - p.y );
+	if( tmp < d ){
+		d = tmp;
+		side = 4;
+	}
+	tmp = std::abs( max.z - p.z );
+	if( tmp < d ){
+		d = tmp;
+		side = 5;
+	}
+
+	sf::Vector3f pos = min;
+	sf::Vector3f dim = max - min;
+
+	sf::Vector2f normCoord;
+
+	if( side % 3 == 0 ){
+		// Ignore x-coordinate.
+		normCoord = sf::Vector2f( ( p.z - pos.z ) / dim.z, ( p.y - pos.y ) / dim.y );
+	}
+	else if( side % 3 == 1 ){
+		// Ignore y-coordinate.
+		normCoord = sf::Vector2f( ( p.x - pos.x ) / dim.x, ( p.z - pos.z ) / dim.z );
+	}
+	else if( side % 3 == 2 ){
+		// Ignore z-coordinate.
+		normCoord = sf::Vector2f( ( p.x - pos.x ) / dim.x, ( p.y - pos.y ) / dim.y );
+	}
+
+	sf::Color col = texture->getPixel( std::round( normCoord.x * ( texture->getSize().x - 1 ) ),
+									   std::round( normCoord.y * ( texture->getSize().y - 1 ) ) );
+
+	return thor::cwiseProduct( getColor(), sf::Vector3f( col.r / 255.f, col.g / 255.f, col.b / 255.f ) );
+}
