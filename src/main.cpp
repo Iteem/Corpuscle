@@ -35,6 +35,10 @@ int main()
 			if( event.type == sf::Event::Closed ){
 				window.close();
 			}
+
+			if( event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F2 ){
+				img.saveToFile(  "corpuscle-" + std::to_string( renderer.getSPP() ) + "SPP.png" );
+			}
 		}
 
 		// Render one more sample.
