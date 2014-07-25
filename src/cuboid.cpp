@@ -21,9 +21,15 @@ Cuboid::~Cuboid()
 
 float Cuboid::intersect( const Ray& ray ) const
 {
-	sf::Vector3f invdir( thor::cwiseQuotient( sf::Vector3f( 1.f, 1.f, 1.f ), ray.direction ) );
-	std::pair<float, float> t = std::minmax( ( min.x - ray.origin.x) * invdir.x, ( max.x - ray.origin.x) * invdir.x );
-	std::pair<float, float> ty = std::minmax( ( min.y - ray.origin.y) * invdir.y, ( max.y - ray.origin.y) * invdir.y );
+	sf::Vector3f invdir( 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z );
+
+	auto t = std::make_pair<float, float>( ( min.x - ray.origin.x) * invdir.x, ( max.x - ray.origin.x) * invdir.x );
+	if( invdir.x < 0.f )
+		std::swap( t.first, t.second );
+
+	auto ty = std::make_pair<float, float>( ( min.y - ray.origin.y) * invdir.y, ( max.y - ray.origin.y) * invdir.y );
+	if( invdir.y < 0.f )
+		std::swap( ty.first, ty.second );
 
 	if ((t.first > ty.second) || (ty.first > t.second))
 		return inf;
@@ -33,7 +39,9 @@ float Cuboid::intersect( const Ray& ray ) const
 	if (ty.second < t.second)
 		t.second = ty.second;
 
-	std::pair<float, float> tz = std::minmax( ( min.z - ray.origin.z) * invdir.z, ( max.z - ray.origin.z) * invdir.z );
+	auto tz = std::make_pair<float, float>( ( min.z - ray.origin.z) * invdir.z, ( max.z - ray.origin.z) * invdir.z );
+	if( invdir.z < 0.f )
+		std::swap( tz.first, tz.second );
 
 	if ((t.first > tz.second) || (tz.first > t.second))
 		return inf;
