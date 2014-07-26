@@ -24,6 +24,7 @@ int main()
 	// Set up RenderManager and start the rendering process.
 	RenderManager rm( screenSize );
 	rm.loadSceneFromFile( "data/scene.json" );
+	rm.setUpdateImage( false );
 	rm.startRendering();
 
 	unsigned int prevSamples = 0;
@@ -51,13 +52,12 @@ int main()
 				// Update Image.
 				img = rm.getImage();
 				tex.loadFromImage( img );
+
+				rm.setUpdateImage( false );
 			}
 			// Don't forget to request a image update before.
 			else if( samples % 9 == 0 ){
 				rm.setUpdateImage( true );
-			}
-			else {
-				rm.setUpdateImage( false );
 			}
 		}
 

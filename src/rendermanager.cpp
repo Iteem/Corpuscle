@@ -100,7 +100,7 @@ void RenderManager::reset()
 
 void RenderManager::workerFunction()
 {
-	m_numRunningThreads++;
+	++m_numRunningThreads;
 
 	// Set up renderer
 	Renderer renderer( &m_scene, m_dimension );
@@ -127,10 +127,13 @@ int RenderManager::getNextJob()
 
 		if( ret >= static_cast<int>( m_dimension.y ) ){
 			// Nothing to do here, wait for the others.
-			// But first check if we are the last thread.
 			unsigned int numRunningThreads = --m_numRunningThreads;
 
+			// First check if we are the last thread.
 			if( numRunningThreads == 0 ){
+				// Don't let any other thread interfere before we're done setting up the next round.
+				std::unique_lock<std::mutex> lock( m_mutex );
+
 				// Save the progress to the image if requested.
 				if( m_updateImage ){
 					std::lock_guard<std::mutex> lock( m_imageMutex );
@@ -147,19 +150,26 @@ int RenderManager::getNextJob()
 					}
 				}
 
+				++m_samples;
 				m_currentLine = 0;
-				m_samples++;
+
+				// Make sure the party doesn't start without us.
+				++m_numRunningThreads;
+
+				lock.unlock();
 
 				// Tell everyone to go back to work.
 				m_conVar.notify_all();
-			} else {
+			}
+			else {
 				// Wait for more work.
 				std::unique_lock<std::mutex> lock( m_mutex );
-				m_conVar.wait( lock );
+				m_conVar.wait( lock, [this](){ return m_currentLine < m_dimension.y; } );
+
+				// We're back working.
+				++m_numRunningThreads;
 			}
 
-			// We're back working
-			m_numRunningThreads++;
 		}
 	} while( ret >= static_cast<int>( m_dimension.y) );
 
