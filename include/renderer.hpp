@@ -20,15 +20,12 @@ class Renderer
 		const Scene *getScene() const;
 		void setScene( const Scene *scene );
 
-		unsigned int getSPP() const;
-
 		/// Renders one more sample.
-		void render();
+		void render( std::vector< sf::Vector3f >& pixels, sf::IntRect rect ) const;
 
 		sf::Image getImage() const;
-	private:
-		void reset();
 
+	private:
 		sf::Vector3f specularReflection( const sf::Vector3f &direction, const sf::Vector3f &normal ) const;
 		sf::Vector3f diffuseReflection( const sf::Vector3f &normal ) const;
 		sf::Vector3f radiance( Ray ray, int depth, const Object *prevObject = nullptr ) const;
@@ -37,9 +34,6 @@ class Renderer
 		sf::Vector2u m_dimension;
 
 		mutable std::mt19937 m_gen;
-
-		std::vector< sf::Vector3f > m_pixels;
-		unsigned int m_spp;
 };
 
 #endif // RENDERER_HPP_INCLUDED

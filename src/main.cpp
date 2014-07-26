@@ -2,53 +2,66 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "renderer.hpp"
-#include "scene.hpp"
+#include "rendermanager.hpp"
 
-const sf::Vector2u screen( 800, 600 );
+const sf::Vector2u screenSize( 800, 600 );
 
 int main()
 {
 	// Window.
-	sf::RenderWindow window( sf::VideoMode(screen.x, screen.y), "Corpuscle" );
+	sf::RenderWindow window( sf::VideoMode(screenSize.x, screenSize.y), "Corpuscle" );
 	window.setVerticalSyncEnabled( true );
 
-	// Scene and Renderer.
-	Scene scene;
-	scene.loadFromJSON( "data/scene.json" );
-
-	Renderer renderer( &scene, screen );
 
 	// Set up sprite to display.
 	sf::Image img;
-	img.create( screen.x, screen.y, sf::Color::Black );
+	img.create( screenSize.x, screenSize.y, sf::Color::Black );
 
 	sf::Texture tex;
 	tex.loadFromImage( img );
 	sf::Sprite sprite( tex );
 
+	// Set up RenderManager and start the rendering process.
+	RenderManager rm( screenSize );
+	rm.loadSceneFromFile( "data/scene.json" );
+	rm.startRendering();
+
+	unsigned int prevSamples = 0;
+
 	// Main loop.
 	while( window.isOpen() ){
+		unsigned int samples = rm.getSamples();
+
 		// Event loop.
 		sf::Event event;
 		while( window.pollEvent( event ) ){
 			if( event.type == sf::Event::Closed ){
 				window.close();
 			}
-
-			if( event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F2 ){
-				img.saveToFile(  "corpuscle-" + std::to_string( renderer.getSPP() ) + "SPP.png" );
+			else if( event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F2 ){
+				img.saveToFile(  "corpuscle-" + std::to_string( rm.getSamples() ) + "SPP.png" );
 			}
 		}
 
-		// Render one more sample.
-		renderer.render();
+		if( prevSamples != samples ){
+			// Only update the image every 10th sample.
+			if( samples % 10 == 0 ){
+				prevSamples = samples;
 
-		// Update Image.
-		img = renderer.getImage();
+				// Update Image.
+				img = rm.getImage();
+				tex.loadFromImage( img );
+			}
+			// Don't forget to request a image update before.
+			else if( samples % 9 == 0 ){
+				rm.setUpdateImage( true );
+			}
+			else {
+				rm.setUpdateImage( false );
+			}
+		}
 
-		window.setTitle( "Corpuscle - SPP: " + std::to_string( renderer.getSPP() ) );
-		tex.loadFromImage( img );
+		window.setTitle( "Corpuscle - SPP: " + std::to_string( samples ) );
 
 		// Drawing.
 		window.clear();

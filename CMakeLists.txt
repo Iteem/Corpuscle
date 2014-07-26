@@ -19,6 +19,7 @@ set( SOURCES
 	${INC_DIR}/object.hpp
 	${INC_DIR}/random.hpp
 	${INC_DIR}/renderer.hpp
+	${INC_DIR}/rendermanager.hpp
 	${INC_DIR}/random.inl
 	${INC_DIR}/ray.hpp
 	${INC_DIR}/scene.hpp
@@ -30,6 +31,7 @@ set( SOURCES
 	${SRC_DIR}/object.cpp
 	${SRC_DIR}/ray.cpp
 	${SRC_DIR}/renderer.cpp
+	${SRC_DIR}/rendermanager.cpp
 	${SRC_DIR}/scene.cpp
 	${SRC_DIR}/sphere.cpp
 	${SRC_DIR}/utility.cpp

@@ -15,8 +15,6 @@ Renderer::Renderer( const Scene *scene, sf::Vector2u dimension ) :
 {
 	m_gen.seed( std::time( nullptr ) );
 	std::uniform_real_distribution<float> dist( -1.f, 1.f );
-
-	reset();
 }
 
 Renderer::~Renderer()
@@ -31,7 +29,6 @@ sf::Vector2u Renderer::getDimension() const
 void Renderer::setDimension( sf::Vector2u dimension )
 {
 	m_dimension = dimension;
-	reset();
 }
 
 const Scene *Renderer::getScene() const
@@ -42,15 +39,9 @@ const Scene *Renderer::getScene() const
 void Renderer::setScene( const Scene *scene )
 {
 	m_scene = scene;
-	reset();
 }
 
-unsigned int Renderer::getSPP() const
-{
-	return m_spp;
-}
-
-void Renderer::render()
+void Renderer::render( std::vector< sf::Vector3f >& pixels, sf::IntRect rect ) const
 {
 	// Distribution for anti-aliasing.
 	std::uniform_real_distribution<float> dist( -1.f, 1.f );
@@ -58,42 +49,17 @@ void Renderer::render()
 	// Convert the dimension to a signed integer for convenience.
 	sf::Vector2i dim( m_dimension );
 
-	m_spp++;
-	for ( int x = 0; x < dim.x; x++ ){
-		for ( int y = 0 ; y < dim.y; y++ ){
+	for ( int x = rect.left; x < rect.left + rect.width; x++ ){
+		for ( int y = rect.top; y < rect.top + rect.height; y++ ){
 			// Camera.
 			float xpart = ( static_cast<float>( x - dim.x / 2 ) + dist( m_gen ) ) / dim.x * 0.9f;
 			float ypart = ( static_cast<float>( y - dim.y / 2 ) + dist( m_gen ) ) / dim.x * 0.9f;
 
 			Ray ray( sf::Vector3f( 50.f, 45.f, 295.f ), thor::unitVector( sf::Vector3f(xpart, ypart, -1.f) ) );
 
-			m_pixels[x + dim.x * y] += radiance( ray, 5 );
+			pixels[x + dim.x * y] += radiance( ray, 5 );
 		}
 	}
-}
-
-sf::Image Renderer::getImage() const
-{
-	sf::Image image;
-	image.create( m_dimension.x, m_dimension.y );
-
-	for ( unsigned int x = 0; x < m_dimension.x; x++ ){
-		for ( unsigned int y = 0 ; y < m_dimension.y; y++ ){
-			sf::Vector3i col( gammmaCorrected( clamp( m_pixels[x + m_dimension.x * y] / static_cast<float>( m_spp ) ), 1.f/2.2f ) * 255.f );
-			image.setPixel( x, m_dimension.y - y - 1, sf::Color( col.x, col.y, col.z) );
-		}
-	}
-
-	return image;
-}
-
-void Renderer::reset()
-{
-	// Reset pixel data and make sure not to waste any memory.
-	m_pixels.resize( m_dimension.x * m_dimension.y, sf::Vector3f() );
-	m_pixels.shrink_to_fit();
-
-	m_spp = 0;
 }
 
 sf::Vector3f Renderer::specularReflection( const sf::Vector3f &direction, const sf::Vector3f &normal ) const
