@@ -6,13 +6,14 @@
 #include "utility.hpp"
 #include "renderer.hpp"
 
-RenderManager::RenderManager( sf::Vector2u dimension ) :
+RenderManager::RenderManager( sf::Vector2u dimension, unsigned int numThreads ) :
 	m_dimension( dimension ),
 	m_samples( 0 ),
 	m_updateImage( true ),
 	m_currentLine( 0 ),
 	m_numRunningThreads( 0 ),
-	m_isRunning( false )
+	m_isRunning( false ),
+	m_numThreads( numThreads )
 {
 	reset();
 }
@@ -57,7 +58,7 @@ void RenderManager::startRendering()
 {
 	m_isRunning = true;
 
-	for( unsigned int i = 0; i < 4; ++i ){
+	for( unsigned int i = 0; i < m_numThreads; ++i ){
 		m_threads.emplace_back( std::bind( &RenderManager::workerFunction, this ) );
 	}
 }

@@ -14,7 +14,7 @@
 class RenderManager
 {
 	public:
-		RenderManager( sf::Vector2u dimension );
+		RenderManager( sf::Vector2u dimension, unsigned int numThreads );
 		~RenderManager();
 
 		void setUpdateImage( bool updateImage );
@@ -54,6 +54,7 @@ class RenderManager
 		std::atomic_uint m_currentLine;
 		std::atomic_uint m_numRunningThreads;
 		std::atomic_bool m_isRunning;
+		unsigned int m_numThreads;
 
 };
 
