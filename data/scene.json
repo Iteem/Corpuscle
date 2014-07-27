@@ -4,7 +4,7 @@
 		{
 			"type": "cuboid",
 			"min": "-1 0 0",  
-			"max": "0 80 200",
+			"max": "0 80 300",
 			"color": ".75 .25 .25f",
 			"texture": "data/clay.png"
 		},
