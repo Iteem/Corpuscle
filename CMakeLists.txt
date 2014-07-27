@@ -39,7 +39,14 @@ set( SOURCES
 
 # GCC
 if( CMAKE_COMPILER_IS_GNUCXX )
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall" )
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall" )
+	if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+		# Use dwarf-2 because most code profilers don't support v3 or v4
+		set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -gdwarf-2")
+	else()
+		# Optimize even if Release isn't specified.
+		set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+	endif()
 endif()
 
 add_executable( ${CMAKE_PROJECT_NAME} ${SOURCES})
