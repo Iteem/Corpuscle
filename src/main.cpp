@@ -4,7 +4,19 @@
 
 #include "rendermanager.hpp"
 
-const sf::Vector2u screenSize( 800, 600 );
+const sf::Vector2u  r360p(   640,   360 );
+const sf::Vector2u  r480p(   854,   480 );
+const sf::Vector2u  r720p(  1280,   720 );
+const sf::Vector2u r1080p(  1920,  1080 );
+const sf::Vector2u r1440p(  2560,  1440 );
+const sf::Vector2u    r4K(  3840,  2160 );
+const sf::Vector2u    r8K(  7680,  4320 );
+const sf::Vector2u   r16K( 15360,  8640 );
+
+const sf::Vector2u screenSize( r720p );
+const sf::Vector2u renderSize( r720p );
+const int sampleDisplayInterval = 10;
+const unsigned int numThreads = 4;
 
 int main()
 {
@@ -15,14 +27,18 @@ int main()
 
 	// Set up sprite to display.
 	sf::Image img;
-	img.create( screenSize.x, screenSize.y, sf::Color::Black );
+	img.create( renderSize.x, renderSize.y, sf::Color::Black );
 
 	sf::Texture tex;
 	tex.loadFromImage( img );
 	sf::Sprite sprite( tex );
+	sprite.scale(
+		static_cast<float>(screenSize.x)/static_cast<float>(renderSize.x),
+		static_cast<float>(screenSize.y)/static_cast<float>(renderSize.y)
+	);
 
 	// Set up RenderManager and start the rendering process.
-	RenderManager rm( screenSize );
+	RenderManager rm( renderSize , numThreads );
 	rm.loadSceneFromFile( "data/scene.json" );
 	rm.setUpdateImage( false );
 	rm.startRendering();
@@ -40,13 +56,16 @@ int main()
 				window.close();
 			}
 			else if( event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F2 ){
-				img.saveToFile(  "corpuscle-" + std::to_string( rm.getSamples() ) + "SPP.png" );
+				img.saveToFile(
+					"corpuscle-"+std::to_string(renderSize.x) + "x" + std::to_string(renderSize.y) + 
+					"-" + std::to_string( rm.getSamples() ) + "SPP.png" 
+				);
 			}
 		}
 
 		if( prevSamples != samples ){
-			// Only update the image every 10th sample.
-			if( samples % 10 == 0 ){
+			// Only update the image every Nth sample.
+			if( samples % sampleDisplayInterval == 0 ){
 				prevSamples = samples;
 
 				// Update Image.
@@ -56,12 +75,15 @@ int main()
 				rm.setUpdateImage( false );
 			}
 			// Don't forget to request a image update before.
-			else if( samples % 9 == 0 ){
+			else if( samples % (sampleDisplayInterval-1) == 0 ){
 				rm.setUpdateImage( true );
 			}
 		}
 
-		window.setTitle( "Corpuscle - SPP: " + std::to_string( samples ) );
+		window.setTitle( 
+			"Corpuscle @ "+std::to_string(renderSize.x) + "x" + std::to_string(renderSize.y) +
+				" & " + std::to_string(numThreads) + " Threads - SPP: " + std::to_string( samples )
+		);
 
 		// Drawing.
 		window.clear();
