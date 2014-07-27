@@ -10,7 +10,8 @@
 Cuboid::Cuboid( sf::Vector3f min, sf::Vector3f max, sf::Vector3f color, sf::Vector3f emission, Material material ) :
 	Object( color, emission, material ),
 	min( min ),
-	max( max )
+	max( max ),
+	m_textureSize( 0, 0 )
 {
 }
 
@@ -94,7 +95,7 @@ sf::Vector3f Cuboid::collisionNormal( const Ray& ray ) const
 sf::Vector3f Cuboid::collisionColor( const Ray& ray ) const
 {
 	// In case no texture is set return the color of the object.
-	if( !texture ){
+	if( m_texture.empty() ){
 		return getColor();
 	}
 
@@ -147,8 +148,31 @@ sf::Vector3f Cuboid::collisionColor( const Ray& ray ) const
 		normCoord = sf::Vector2f( ( p.x - pos.x ) / dim.x, ( p.y - pos.y ) / dim.y );
 	}
 
-	sf::Color col = texture->getPixel( std::round( normCoord.x * ( texture->getSize().x - 1 ) ),
-									   std::round( normCoord.y * ( texture->getSize().y - 1 ) ) );
+	sf::Vector3f color = m_texture[ std::round( normCoord.x * ( m_textureSize.x - 1 ) ) + std::round( normCoord.y * ( m_textureSize.y - 1 ) ) * m_textureSize.x ];
 
-	return thor::cwiseProduct( getColor(), sf::Vector3f( col.r / 255.f, col.g / 255.f, col.b / 255.f ) );
+	return thor::cwiseProduct( getColor(), color );
+}
+
+void Cuboid::setTexture( const sf::Image& image )
+{
+	m_textureSize = image.getSize();
+
+	m_texture.resize( m_textureSize.x * m_textureSize.y );
+	m_texture.shrink_to_fit();
+
+	for( unsigned int x = 0; x < m_textureSize.x; ++x ){
+		for( unsigned int y = 0; y < m_textureSize.y; ++y ){
+			sf::Color col = image.getPixel( x, y );
+			// Textures are gamma-corrected, so don't forget to reverse that.
+			m_texture[ x + y * m_textureSize.x ] = gammmaCorrected( sf::Vector3f( col.r / 255.f, col.g / 255.f, col.b / 255.f ), 2.2f );
+		}
+	}
+}
+
+void Cuboid::clearTexture()
+{
+	m_textureSize = sf::Vector2u( 0, 0 );
+
+	m_texture.clear();
+	m_texture.shrink_to_fit();
 }

@@ -18,10 +18,15 @@ class Cuboid : public Object
 		virtual sf::Vector3f collisionNormal( const Ray& ray ) const;
 		virtual sf::Vector3f collisionColor( const Ray& ray ) const;
 
-		std::shared_ptr<sf::Image> texture;
+		void setTexture( const sf::Image& image );
+		void clearTexture();
 
 		sf::Vector3f min;
 		sf::Vector3f max;
+
+	private:
+		std::vector<sf::Vector3f> m_texture;
+		sf::Vector2u m_textureSize;
 };
 
 #endif // CUBOID_HPP_INCLUDED

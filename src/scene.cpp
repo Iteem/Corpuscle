@@ -82,11 +82,10 @@ bool Scene::loadFromJSON( const std::string &path )
 
 			std::string imagePath = obj.second.get( "texture", "" );
 			if( imagePath != "" ){
-				cuboid->texture = std::make_shared<sf::Image>();
+				sf::Image image;
 
-				if( !cuboid->texture->loadFromFile( imagePath ) ){
-					// Loading failed, reset the pointer.
-					cuboid->texture.reset();
+				if( image.loadFromFile( imagePath ) ){
+					cuboid->setTexture( image );
 				}
 			}
 
