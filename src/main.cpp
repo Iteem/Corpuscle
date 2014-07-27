@@ -4,7 +4,8 @@
 
 #include "rendermanager.hpp"
 
-const sf::Vector2u screenSize( 800, 600 );
+const sf::Vector2u screenSize( 1280, 720 );
+const sf::Vector2u renderSize( 7680, 4320 );
 
 int main()
 {
@@ -15,14 +16,18 @@ int main()
 
 	// Set up sprite to display.
 	sf::Image img;
-	img.create( screenSize.x, screenSize.y, sf::Color::Black );
+	img.create( renderSize.x, renderSize.y, sf::Color::Black );
 
 	sf::Texture tex;
 	tex.loadFromImage( img );
 	sf::Sprite sprite( tex );
+	sprite.scale(
+		static_cast<float>(screenSize.x)/static_cast<float>(renderSize.x),
+		static_cast<float>(screenSize.y)/static_cast<float>(renderSize.y)
+	);
 
 	// Set up RenderManager and start the rendering process.
-	RenderManager rm( screenSize );
+	RenderManager rm( renderSize );
 	rm.loadSceneFromFile( "data/scene.json" );
 	rm.setUpdateImage( false );
 	rm.startRendering();
