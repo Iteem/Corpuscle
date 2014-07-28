@@ -51,11 +51,7 @@ void Renderer::render( std::vector< sf::Vector3f >& pixels, sf::IntRect rect ) c
 
 	for ( int x = rect.left; x < rect.left + rect.width; x++ ){
 		for ( int y = rect.top; y < rect.top + rect.height; y++ ){
-			// Camera.
-			float xpart = ( static_cast<float>( x - dim.x / 2 ) + dist( m_gen ) ) / dim.x * 0.9f;
-			float ypart = ( static_cast<float>( y - dim.y / 2 ) + dist( m_gen ) ) / dim.x * 0.9f;
-
-			Ray ray( sf::Vector3f( 50.f, 45.f, 295.f ), thor::unitVector( sf::Vector3f(xpart, ypart, -1.f) ) );
+			Ray ray( m_scene->getCamera().getRay( sf::Vector2f( x + dist( m_gen ), y + dist( m_gen ) ) ) );
 
 			pixels[x + dim.x * y] += radiance( ray, 5 );
 		}

@@ -4,8 +4,9 @@
 #include <memory>
 #include <utility>
 
-#include "ray.hpp"
+#include "camera.hpp"
 #include "object.hpp"
+#include "ray.hpp"
 
 class Scene
 {
@@ -15,9 +16,13 @@ class Scene
 
 		std::pair<float, const Object *> getCollision( const Ray &ray, const Object *prevObject ) const;
 
+		const Camera& getCamera() const;
+		void setCamera( const Camera& camera );
+
 		bool loadFromJSON( const std::string &path );
 
 	 private:
+	 	Camera m_camera;
 		std::vector< std::unique_ptr<Object> > m_objects;
 };
 

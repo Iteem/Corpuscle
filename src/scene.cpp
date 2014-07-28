@@ -103,3 +103,13 @@ bool Scene::loadFromJSON( const std::string &path )
 
     return true;
 }
+
+const Camera& Scene::getCamera() const
+{
+	return m_camera;
+}
+
+void Scene::setCamera( const Camera& camera )
+{
+	m_camera = camera;
+}

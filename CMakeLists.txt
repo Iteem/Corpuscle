@@ -15,6 +15,7 @@ set( INC_DIR "${PROJECT_SOURCE_DIR}/include/" )
 include_directories( ${INC_DIR} )
 
 set( SOURCES
+	${INC_DIR}/camera.hpp
 	${INC_DIR}/cuboid.hpp
 	${INC_DIR}/object.hpp
 	${INC_DIR}/random.hpp
@@ -26,6 +27,7 @@ set( SOURCES
 	${INC_DIR}/sphere.hpp
 	${INC_DIR}/utility.hpp
 	${INC_DIR}/utility.inl
+	${SRC_DIR}/camera.cpp
 	${SRC_DIR}/cuboid.cpp
 	${SRC_DIR}/main.cpp
 	${SRC_DIR}/object.cpp

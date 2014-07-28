@@ -29,3 +29,14 @@ std::unique_ptr<T> make_unique(Args&&... args)
 {
     return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
+
+constexpr float radToDeg( float angle )
+{
+	return angle * 180.f / PI;
+}
+
+constexpr float degToRad( float angle )
+{
+	return angle * PI / 180.f;
+}
+

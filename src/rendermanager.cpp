@@ -3,8 +3,8 @@
 #include <functional>
 #include <iostream>
 
-#include "utility.hpp"
 #include "renderer.hpp"
+#include "utility.hpp"
 
 RenderManager::RenderManager( sf::Vector2u dimension, unsigned int numThreads ) :
 	m_dimension( dimension ),
@@ -50,6 +50,13 @@ bool RenderManager::loadSceneFromFile( const std::string& path )
 {
 	// Reset the everything before loading a new scene.
 	reset();
+
+	Camera camera;
+	camera.setResolution( m_dimension );
+	camera.setPosition( sf::Vector3f( 50.f, 45.f, 295.f ) );
+	camera.setDirection( sf::Vector3f( 0.f, -0.f, -1.f ) );
+	camera.setFOV( 27.26f );
+	m_scene.setCamera( camera );
 
 	return m_scene.loadFromJSON( path );
 }
