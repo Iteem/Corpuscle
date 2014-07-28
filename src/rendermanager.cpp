@@ -51,13 +51,6 @@ bool RenderManager::loadSceneFromFile( const std::string& path )
 	// Reset the everything before loading a new scene.
 	reset();
 
-	Camera camera;
-	camera.setResolution( m_dimension );
-	camera.setPosition( sf::Vector3f( 50.f, 45.f, 295.f ) );
-	camera.setDirection( sf::Vector3f( 0.f, -0.f, -1.f ) );
-	camera.setFOV( 27.26f );
-	m_scene.setCamera( camera );
-
 	return m_scene.loadFromJSON( path );
 }
 
@@ -98,6 +91,10 @@ sf::Image RenderManager::getImage() const
 void RenderManager::reset()
 {
 	stopRendering();
+
+	Camera camera;
+	camera.setResolution( m_dimension );
+	m_scene.setCamera( camera );
 
 	// Reset pixel data and make sure not to waste any memory.
 	m_pixels.resize( m_dimension.x * m_dimension.y, sf::Vector3f() );

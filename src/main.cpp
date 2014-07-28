@@ -13,8 +13,8 @@ const sf::Vector2u    r4K(  3840,  2160 );
 const sf::Vector2u    r8K(  7680,  4320 );
 const sf::Vector2u   r16K( 15360,  8640 );
 
-const sf::Vector2u screenSize( r720p );
-const sf::Vector2u renderSize( r720p );
+const sf::Vector2u screenSize( sf::Vector2u( 1920 / 2, 1080 / 4 ) );
+const sf::Vector2u renderSize( sf::Vector2u( 1920 * 2, 1080 ) );
 const int sampleDisplayInterval = 10;
 const unsigned int numThreads = 4;
 
@@ -39,7 +39,7 @@ int main()
 
 	// Set up RenderManager and start the rendering process.
 	RenderManager rm( renderSize , numThreads );
-	rm.loadSceneFromFile( "data/scene.json" );
+	rm.loadSceneFromFile( "data/background.json" );
 	rm.setUpdateImage( false );
 	rm.startRendering();
 
@@ -57,8 +57,8 @@ int main()
 			}
 			else if( event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F2 ){
 				img.saveToFile(
-					"corpuscle-"+std::to_string(renderSize.x) + "x" + std::to_string(renderSize.y) + 
-					"-" + std::to_string( rm.getSamples() ) + "SPP.png" 
+					"corpuscle-"+std::to_string(renderSize.x) + "x" + std::to_string(renderSize.y) +
+					"-" + std::to_string( rm.getSamples() ) + "SPP.png"
 				);
 			}
 		}
@@ -80,7 +80,7 @@ int main()
 			}
 		}
 
-		window.setTitle( 
+		window.setTitle(
 			"Corpuscle @ "+std::to_string(renderSize.x) + "x" + std::to_string(renderSize.y) +
 				" & " + std::to_string(numThreads) + " Threads - SPP: " + std::to_string( samples )
 		);

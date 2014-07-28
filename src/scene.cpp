@@ -101,6 +101,11 @@ bool Scene::loadFromJSON( const std::string &path )
 		}
 	}
 
+	// Load camera.
+	m_camera.setPosition( parseVector( pt.get( "camera.position", "" ), sf::Vector3f( 0.f, 0.f, 0.f ) ) );
+	m_camera.setDirection( parseVector( pt.get( "camera.direction", "" ), sf::Vector3f( 0.f, 0.f, -1.f ) ) );
+	m_camera.setFOV( pt.get( "camera.FOV", 70.f ) );
+
     return true;
 }
 
