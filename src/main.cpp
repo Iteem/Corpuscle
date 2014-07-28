@@ -13,8 +13,8 @@ const sf::Vector2u    r4K(  3840,  2160 );
 const sf::Vector2u    r8K(  7680,  4320 );
 const sf::Vector2u   r16K( 15360,  8640 );
 
-const sf::Vector2u screenSize( sf::Vector2u( 1920 / 2, 1080 / 4 ) );
-const sf::Vector2u renderSize( sf::Vector2u( 1920 * 2, 1080 ) );
+const sf::Vector2u screenSize( r720p );
+const sf::Vector2u renderSize( r720p );
 const int sampleDisplayInterval = 10;
 const unsigned int numThreads = 4;
 
@@ -39,7 +39,7 @@ int main()
 
 	// Set up RenderManager and start the rendering process.
 	RenderManager rm( renderSize , numThreads );
-	rm.loadSceneFromFile( "data/background.json" );
+	rm.loadSceneFromFile( "data/scene.json" );
 	rm.setUpdateImage( false );
 	rm.startRendering();
 
