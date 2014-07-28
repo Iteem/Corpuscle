@@ -82,7 +82,7 @@ sf::Vector3f Renderer::radiance( Ray ray, int depth, const Object *prevObject ) 
 	}
 
 	// maximal depth, return emission only
-	if( --depth < 0 ){
+	if( depth <= 0 ){
 		return obj->getEmission();
 	}
 
