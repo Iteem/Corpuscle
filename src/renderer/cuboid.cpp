@@ -148,7 +148,8 @@ sf::Vector3f Cuboid::collisionColor( const Ray& ray ) const
 		normCoord = sf::Vector2f( ( p.x - pos.x ) / dim.x, ( p.y - pos.y ) / dim.y );
 	}
 
-	sf::Vector3f color = m_texture[ std::round( normCoord.x * ( m_textureSize.x - 1 ) ) + std::round( normCoord.y * ( m_textureSize.y - 1 ) ) * m_textureSize.x ];
+	sf::Vector3f color = m_texture[ std::max( 0u, std::min( m_textureSize.x - 1, static_cast<unsigned int>( std::floor( normCoord.x * m_textureSize.x ) ) ) ) +
+	                                std::max( 0u, std::min( m_textureSize.y - 1, static_cast<unsigned int>( std::floor( normCoord.y * m_textureSize.y ) ) ) ) * m_textureSize.x ];
 
 	return thor::cwiseProduct( getColor(), color );
 }
