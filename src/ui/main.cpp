@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "rendermanager.hpp"
+#include "renderer/rendermanager.hpp"
 
 const sf::Vector2u  r360p(   640,   360 );
 const sf::Vector2u  r480p(   854,   480 );

@@ -9,35 +9,7 @@ find_package( Thor REQUIRED )
 find_package( Boost REQUIRED )
 include_directories( ${SFML_INCLUDE} ${THOR_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} )
 
-# Source files
-set( SRC_DIR "${PROJECT_SOURCE_DIR}/src/" )
-set( INC_DIR "${PROJECT_SOURCE_DIR}/include/" )
-include_directories( ${INC_DIR} )
-
-set( SOURCES
-	${INC_DIR}/camera.hpp
-	${INC_DIR}/cuboid.hpp
-	${INC_DIR}/object.hpp
-	${INC_DIR}/random.hpp
-	${INC_DIR}/renderer.hpp
-	${INC_DIR}/rendermanager.hpp
-	${INC_DIR}/random.inl
-	${INC_DIR}/ray.hpp
-	${INC_DIR}/scene.hpp
-	${INC_DIR}/sphere.hpp
-	${INC_DIR}/utility.hpp
-	${INC_DIR}/utility.inl
-	${SRC_DIR}/camera.cpp
-	${SRC_DIR}/cuboid.cpp
-	${SRC_DIR}/main.cpp
-	${SRC_DIR}/object.cpp
-	${SRC_DIR}/ray.cpp
-	${SRC_DIR}/renderer.cpp
-	${SRC_DIR}/rendermanager.cpp
-	${SRC_DIR}/scene.cpp
-	${SRC_DIR}/sphere.cpp
-	${SRC_DIR}/utility.cpp
-)
+include_directories( ${PROJECT_SOURCE_DIR}/include )
 
 # GCC
 if( CMAKE_COMPILER_IS_GNUCXX )
@@ -51,8 +23,11 @@ if( CMAKE_COMPILER_IS_GNUCXX )
 	endif()
 endif()
 
-add_executable( ${CMAKE_PROJECT_NAME} ${SOURCES})
-target_link_libraries( ${CMAKE_PROJECT_NAME} ${SFML_LIBRARIES} ${THOR_LIBRARY} ${Boost_LIBRARIES} )
+# Make sure our executables end up in the top directory.
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
+
+add_subdirectory( ${PROJECT_SOURCE_DIR}/src/renderer )
+add_subdirectory( ${PROJECT_SOURCE_DIR}/src/ui )
 
 # Copy data directory to build cache directory to be able to run examples from
 # there. Useful for testing stuff.
