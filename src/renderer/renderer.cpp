@@ -65,12 +65,21 @@ sf::Vector3f Renderer::specularReflection( const sf::Vector3f &direction, const 
 
 sf::Vector3f Renderer::diffuseReflection( const sf::Vector3f &normal ) const
 {
-	sf::Vector3f randomVec( uniformOnSphere( m_gen ) );
-	float d = thor::dotProduct( randomVec, normal );
-	return d > 0.f ? randomVec : randomVec - 2.f * d * normal;
+	//sf::Vector3f randomVec( uniformOnSphere( m_gen ) );
+	//float d = thor::dotProduct( randomVec, normal );
+	//return d > 0.f ? randomVec : randomVec - 2.f * d * normal;
+
+	std::uniform_real_distribution<float> dist( 0.f, 1.f );
+
+	float r1 = 2.f * PI * dist( m_gen );
+	float r2 = dist( m_gen );
+	float r2s = std::sqrt( r2 );
+	sf::Vector3f u( thor::unitVector( thor::crossProduct( std::fabs( normal.x ) > 0.1f ? sf::Vector3f( 0.f, 1.f, 0.f ) : sf::Vector3f( 1.f, 0.f, 0.f ), normal ) ) );
+	sf::Vector3f v = thor::crossProduct( normal, u );
+	return thor::unitVector( u * std::cos( r1 ) * r2s + v * std::sin( r1 ) * r2s + normal * std::sqrt( 1-r2 ) );
 }
 
-sf::Vector3f Renderer::radiance( Ray ray, int depth, const Object *prevObject ) const
+sf::Vector3f Renderer::radiance( Ray ray, int depth, const Object *prevObject, float emission ) const
 {
 	auto collisionPair = m_scene->getCollision( ray, prevObject );
 	float t = collisionPair.first;
@@ -86,6 +95,9 @@ sf::Vector3f Renderer::radiance( Ray ray, int depth, const Object *prevObject ) 
 		return obj->getEmission();
 	}
 
+	sf::Vector3f directLight;
+	float newEmission = 1.f;
+
 	// calculate new ray
 	sf::Vector3f normal( obj->collisionNormal( ray ) );
 	sf::Vector3f color( obj->collisionColor( ray ) );
@@ -95,6 +107,17 @@ sf::Vector3f Renderer::radiance( Ray ray, int depth, const Object *prevObject ) 
 	switch( obj->getMaterial().type ){
 		case Material::Type::Diffuse:
 			ray.direction = diffuseReflection( normal );
+
+			// Direct lighting.
+			for( auto light : m_scene->getLights() ){
+				auto rayAreaPair( light->createRayToObject( m_gen, ray.origin ) );
+				if( m_scene->getCollision( rayAreaPair.first, nullptr ).second == light ){
+					directLight += rayAreaPair.second / PI * std::max( 0.f, thor::dotProduct( rayAreaPair.first.direction, normal ) ) *
+					               thor::cwiseProduct( color, light->getEmission() );
+				}
+			}
+
+			newEmission = 0.f;
 			break;
 		case Material::Type::Specular:
 			ray.direction = specularReflection( ray.direction, normal );
@@ -104,5 +127,5 @@ sf::Vector3f Renderer::radiance( Ray ray, int depth, const Object *prevObject ) 
 	}
 
 
-	return obj->getEmission() + thor::cwiseProduct( color, radiance( ray, depth - 1, obj ) );
+	return obj->getEmission() * emission  + directLight + thor::cwiseProduct( color, radiance( ray, depth - 1, obj, newEmission ) );
 }

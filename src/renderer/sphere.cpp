@@ -52,3 +52,25 @@ sf::Vector3f Sphere::collisionColor( const Ray& ray ) const
 {
 	return getColor();
 }
+
+std::pair<Ray, float> Sphere::createRayToObject( std::mt19937& gen, const sf::Vector3f& point ) const
+{
+	sf::Vector3f sw = center - point;
+	sf::Vector3f su = thor::unitVector( thor::crossProduct( fabs(sw.x) > .1f ? sf::Vector3f( 0.f, 1.f, 0.f ) : sf::Vector3f( 1.f, 0.f, 0.f ), sw ) );
+	sf::Vector3f sv = thor::crossProduct( sw, su );
+	float cos_a_max = std::sqrt( 1 - radius*radius / thor::squaredLength( sw ) );
+
+	static std::uniform_real_distribution<float> dist( 0.f, 1.f );
+	float eps1 = dist( gen );
+	float cos_a = 1.f - eps1 + eps1 * cos_a_max;
+	float sin_a = sqrt( 1.f - cos_a * cos_a );
+
+	float eps2 = dist( gen );
+	float phi = 2.f * PI * eps2;
+
+	sf::Vector3f l = thor::unitVector( su * std::cos( phi ) * sin_a + sv * std::sin( phi ) * sin_a + sw * cos_a );
+
+	float area = 2.f * PI * ( 1.f - cos_a_max );
+
+	return std::make_pair( Ray( point, l ), area );
+}

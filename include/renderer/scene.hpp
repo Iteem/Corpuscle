@@ -15,6 +15,7 @@ class Scene
 		~Scene();
 
 		std::pair<float, const Object *> getCollision( const Ray &ray, const Object *prevObject ) const;
+		const std::vector<const Object *>& getLights() const;
 
 		const Camera& getCamera() const;
 		void setCamera( const Camera& camera );
@@ -24,6 +25,7 @@ class Scene
 	 private:
 	 	Camera m_camera;
 		std::vector< std::unique_ptr<Object> > m_objects;
+		std::vector<const Object *> m_lights;
 };
 
 

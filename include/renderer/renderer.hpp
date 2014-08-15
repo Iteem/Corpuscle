@@ -28,7 +28,7 @@ class Renderer
 	private:
 		sf::Vector3f specularReflection( const sf::Vector3f &direction, const sf::Vector3f &normal ) const;
 		sf::Vector3f diffuseReflection( const sf::Vector3f &normal ) const;
-		sf::Vector3f radiance( Ray ray, int depth, const Object *prevObject = nullptr ) const;
+		sf::Vector3f radiance( Ray ray, int depth, const Object *prevObject = nullptr, float emission = 1.f ) const;
 
 		const Scene *m_scene;
 		sf::Vector2u m_dimension;

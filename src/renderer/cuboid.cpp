@@ -154,6 +154,63 @@ sf::Vector3f Cuboid::collisionColor( const Ray& ray ) const
 	return thor::cwiseProduct( getColor(), color );
 }
 
+std::pair<Ray, float>  Cuboid::createRayToObject( std::mt19937& gen, const sf::Vector3f& point ) const
+{
+	// This function only works correctly for far away points.
+	sf::Vector3f dim = max - min;
+	sf::Vector3f dim_2 = dim / 2.f;
+
+	float xyArea = dim.x * dim.y;
+	float xzArea = dim.x * dim.z;
+	float yzArea = dim.y * dim.z;
+
+	// Calculate visible area from point.
+	float visibleArea[6];
+	visibleArea[0] = std::max( 0.f, thor::unitVector( min + sf::Vector3f( 0.f, dim_2.y, dim_2.z ) - point ).x ) * yzArea;
+	visibleArea[1] = std::max( 0.f, thor::unitVector( min + sf::Vector3f( dim_2.x, 0.f, dim_2.z ) - point ).y ) * xzArea;
+	visibleArea[2] = std::max( 0.f, thor::unitVector( min + sf::Vector3f( dim_2.x, dim_2.y, 0.f ) - point ).z ) * xyArea;
+	visibleArea[3] = std::max( 0.f, thor::unitVector( point - max - sf::Vector3f( 0.f, dim_2.y, dim_2.z ) ).x ) * yzArea;
+	visibleArea[4] = std::max( 0.f, thor::unitVector( point - max - sf::Vector3f( dim_2.x, 0.f, dim_2.z ) ).y ) * xzArea;
+	visibleArea[5] = std::max( 0.f, thor::unitVector( point - max - sf::Vector3f( dim_2.x, dim_2.y, 0.f ) ).z ) * xyArea;
+
+	std::uniform_real_distribution<float> uDist( 0.f, 1.f );
+	float eps1( uDist( gen ) );
+	float eps2( uDist( gen ) );
+
+	// Choose random side weighted by the visible area.
+	sf::Vector3f pointOnSurface;
+	std::discrete_distribution<> dist( std::begin( visibleArea ), std::end( visibleArea ) );
+	switch( dist( gen ) ){
+		case 0:
+			pointOnSurface = min + sf::Vector3f( 0.f, eps1 * dim.y, eps2 * dim.z );
+			break;
+		case 1:
+			pointOnSurface = min + sf::Vector3f( eps1 * dim.x, 0.f, eps2 * dim.z );
+			break;
+		case 2:
+			pointOnSurface = min + sf::Vector3f( eps1 * dim.x, eps2 * dim.y, 0.f );
+			break;
+		case 3:
+			pointOnSurface = max - sf::Vector3f( 0.f, eps1 * dim.y, eps2 * dim.z );
+			break;
+		case 4:
+			pointOnSurface = max - sf::Vector3f( eps1 * dim.x, 0.f, eps2 * dim.z );
+			break;
+		case 5:
+			pointOnSurface = max - sf::Vector3f( eps1 * dim.x, eps2 * dim.y, 0.f );
+			break;
+	}
+
+	float totalArea = 0.f;
+	for( auto dArea : visibleArea ){
+		totalArea += dArea;
+	}
+
+	sf::Vector3f l = pointOnSurface - point;
+
+	return std::make_pair( Ray( point, thor::unitVector( l ) ), totalArea / thor::squaredLength( l ) );
+}
+
 void Cuboid::setTexture( const sf::Image& image )
 {
 	m_textureSize = image.getSize();

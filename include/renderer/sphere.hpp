@@ -15,6 +15,8 @@ class Sphere : public Object
 		virtual sf::Vector3f collisionNormal( const Ray& ray ) const;
 		virtual sf::Vector3f collisionColor( const Ray& ray ) const;
 
+		virtual std::pair<Ray, float> createRayToObject( std::mt19937& gen, const sf::Vector3f& point ) const;
+
 		float radius;
 		sf::Vector3f center;
 };

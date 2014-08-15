@@ -37,6 +37,11 @@ std::pair<float, const Object *> Scene::getCollision( const Ray &ray, const Obje
 	return std::make_pair( t, obj );
 }
 
+const std::vector<const Object *>& Scene::getLights() const
+{
+	return m_lights;
+}
+
 bool Scene::loadFromJSON( const std::string &path )
 {
 	using namespace boost::property_tree;
@@ -105,6 +110,15 @@ bool Scene::loadFromJSON( const std::string &path )
 	m_camera.setPosition( parseVector( pt.get( "camera.position", "" ), sf::Vector3f( 0.f, 0.f, 0.f ) ) );
 	m_camera.setDirection( parseVector( pt.get( "camera.direction", "" ), sf::Vector3f( 0.f, 0.f, -1.f ) ) );
 	m_camera.setFOV( pt.get( "camera.FOV", 70.f ) );
+
+	// Cache lights.
+	m_lights.clear();
+	for( const auto& ptr : m_objects ){
+		sf::Vector3f emission = ptr->getEmission();
+		if( emission.x != 0.f || emission.y != 0.f || emission.z != 0.f ){
+			m_lights.push_back( ptr.get() );
+		}
+	}
 
     return true;
 }

@@ -1,8 +1,10 @@
 #ifndef OBJECT_HPP_INCLUDED
 #define OBJECT_HPP_INCLUDED
 
+#include <random>
+#include <utility>
+
 #include <SFML/System/Vector3.hpp>
-#include <boost/optional.hpp>
 
 #include "ray.hpp"
 
@@ -38,6 +40,8 @@ public:
 	virtual float intersect( const Ray& ray ) const = 0;
 	virtual sf::Vector3f collisionNormal( const Ray& ray ) const = 0;
 	virtual sf::Vector3f collisionColor( const Ray& ray ) const = 0;
+
+	virtual std::pair<Ray, float> createRayToObject( std::mt19937& gen, const sf::Vector3f& point ) const = 0;
 
 	Material getMaterial() const;
 	void setMaterial( Material material );
