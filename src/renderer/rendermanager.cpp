@@ -6,7 +6,7 @@
 #include "renderer.hpp"
 #include "utility.hpp"
 
-RenderManager::RenderManager( sf::Vector2u dimension, unsigned int numThreads ) :
+RenderManager::RenderManager( glm::uvec2 dimension, unsigned int numThreads ) :
 	m_dimension( dimension ),
 	m_samples( 0 ),
 	m_updateImage( true ),
@@ -33,12 +33,12 @@ bool RenderManager::getUpdateImage() const
 	return m_updateImage;
 }
 
-sf::Vector2u RenderManager::getDimension() const
+glm::uvec2 RenderManager::getDimension() const
 {
 	return m_dimension;
 }
 
-void RenderManager::setDimension( sf::Vector2u dimension )
+void RenderManager::setDimension( glm::uvec2 dimension )
 {
 	stopRendering();
 
@@ -97,7 +97,7 @@ void RenderManager::reset()
 	m_scene.setCamera( camera );
 
 	// Reset pixel data and make sure not to waste any memory.
-	m_pixels.resize( m_dimension.x * m_dimension.y, sf::Vector3f() );
+	m_pixels.resize( m_dimension.x * m_dimension.y, glm::vec3() );
 	m_pixels.shrink_to_fit();
 
 	m_samples = 0;
@@ -118,8 +118,7 @@ void RenderManager::workerFunction()
 		if( line == -1 )
 			return;
 
-		sf::IntRect rect( 0, line, m_dimension.x, 1);
-		renderer.render( m_pixels, rect );
+		renderer.render( m_pixels, glm::ivec2( 0, line ), glm::ivec2( m_dimension.x, 1 ) );
 	}
 
 }
@@ -143,13 +142,13 @@ int RenderManager::getNextJob()
 				if( m_updateImage ){
 					std::lock_guard<std::mutex> lock( m_imageMutex );
 
-					if( m_image.getSize() != m_dimension ){
+					if( m_image.getSize().x != m_dimension.x && m_image.getSize().y != m_dimension.y ){
 						m_image.create( m_dimension.x, m_dimension.y );
 					}
 
 					for ( unsigned int x = 0; x < m_dimension.x; x++ ){
 						for ( unsigned int y = 0 ; y < m_dimension.y; y++ ){
-							sf::Vector3i col( gammmaCorrected( clamp( m_pixels[x + m_dimension.x * y] / static_cast<float>( m_samples ) ), 1.f/2.2f ) * 255.f );
+							glm::ivec3 col( gammmaCorrected( clamp( m_pixels[x + m_dimension.x * y] / static_cast<float>( m_samples ) ), 1.f/2.2f ) * 255.f );
 							m_image.setPixel( x, m_dimension.y - y - 1, sf::Color( col.x, col.y, col.z) );
 						}
 					}

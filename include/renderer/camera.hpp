@@ -1,8 +1,7 @@
 #ifndef CAMERA_HPP_INCLUDED
 #define CAMERA_HPP_INCLUDED
 
-#include <SFML/System/Vector2.hpp>
-#include <SFML/System/Vector3.hpp>
+#include <glm/glm.hpp>
 
 #include "ray.hpp"
 
@@ -12,31 +11,31 @@ class Camera
 		Camera();
 		~Camera();
 
-		sf::Vector2u getResolution() const;
-		void setResolution( const sf::Vector2u& resolution );
+		glm::uvec2 getResolution() const;
+		void setResolution( const glm::uvec2& resolution );
 
-		sf::Vector3f getPosition() const;
-		void setPosition( const sf::Vector3f& position );
+		glm::vec3 getPosition() const;
+		void setPosition( const glm::vec3& position );
 
-		sf::Vector3f getDirection() const;
-		void setDirection( const sf::Vector3f& direction);
+		glm::vec3 getDirection() const;
+		void setDirection( const glm::vec3& direction);
 
 		float getFOV() const;
 		void setFOV( float angle );
 
-		Ray getRay( sf::Vector2f pixel ) const;
+		Ray getRay( glm::vec2 pixel ) const;
 
 	private:
 		void compile();
 
-		sf::Vector2u m_resolution;
+		glm::uvec2 m_resolution;
 
-		sf::Vector3f m_position;
-		sf::Vector3f m_direction;
+		glm::vec3 m_position;
+		glm::vec3 m_direction;
 		float m_FOV;
 
-		sf::Vector3f m_horizontalVec;
-		sf::Vector3f m_verticalVec;
+		glm::vec3 m_horizontalVec;
+		glm::vec3 m_verticalVec;
 };
 
 

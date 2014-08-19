@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <glm/glm.hpp>
 #include <SFML/Graphics.hpp>
 
 #include "renderer/rendermanager.hpp"
@@ -38,7 +39,7 @@ int main()
 	);
 
 	// Set up RenderManager and start the rendering process.
-	RenderManager rm( renderSize , numThreads );
+	RenderManager rm( glm::uvec2( renderSize.x, renderSize.y ), numThreads );
 	rm.loadSceneFromFile( "data/scene.json" );
 	rm.setUpdateImage( false );
 	rm.startRendering();

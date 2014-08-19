@@ -1,24 +1,24 @@
 #ifndef SPHERE_HPP_INCLUDED
 #define SPHERE_HPP_INCLUDED
 
-#include <SFML/System/Vector3.hpp>
+#include <glm/glm.hpp>
 
 #include "object.hpp"
 
 class Sphere : public Object
 {
 	public:
-		Sphere( float radius, sf::Vector3f center, sf::Vector3f color, sf::Vector3f emission = sf::Vector3f(), Material material = Material( Material::Type::Diffuse ) );
+		Sphere( float radius, glm::vec3 center, glm::vec3 color, glm::vec3 emission = glm::vec3(), Material material = Material( Material::Type::Diffuse ) );
 		virtual ~Sphere();
 
 		virtual float intersect( const Ray& ray ) const;
-		virtual sf::Vector3f collisionNormal( const Ray& ray ) const;
-		virtual sf::Vector3f collisionColor( const Ray& ray ) const;
+		virtual glm::vec3 collisionNormal( const Ray& ray ) const;
+		virtual glm::vec3 collisionColor( const Ray& ray ) const;
 
-		virtual std::pair<Ray, float> createRayToObject( std::mt19937& gen, const sf::Vector3f& point ) const;
+		virtual std::pair<Ray, float> createRayToObject( std::mt19937& gen, const glm::vec3& point ) const;
 
 		float radius;
-		sf::Vector3f center;
+		glm::vec3 center;
 };
 
 #endif // SPHERE_HPP_INCLUDED

@@ -4,34 +4,35 @@
 #include <random>
 #include <vector>
 
-#include <SFML/Graphics.hpp>
+#include <glm/glm.hpp>
+#include <SFML/Graphics/Image.hpp>
 
 #include "scene.hpp"
 
 class Renderer
 {
 	public:
-		Renderer( const Scene *scene, sf::Vector2u dimension );
+		Renderer( const Scene *scene, glm::uvec2 dimension );
 		~Renderer();
 
-		sf::Vector2u getDimension() const;
-		void setDimension( sf::Vector2u dimension );
+		glm::uvec2 getDimension() const;
+		void setDimension( glm::uvec2 dimension );
 
 		const Scene *getScene() const;
 		void setScene( const Scene *scene );
 
 		/// Renders one more sample.
-		void render( std::vector< sf::Vector3f >& pixels, sf::IntRect rect ) const;
+		void render( std::vector< glm::vec3 >& pixels, glm::ivec2 position, glm::ivec2 dimension ) const;
 
 		sf::Image getImage() const;
 
 	private:
-		sf::Vector3f specularReflection( const sf::Vector3f &direction, const sf::Vector3f &normal ) const;
-		sf::Vector3f diffuseReflection( const sf::Vector3f &normal ) const;
-		sf::Vector3f radiance( Ray ray, int depth, const Object *prevObject = nullptr, float emission = 1.f ) const;
+		glm::vec3 specularReflection( const glm::vec3 &direction, const glm::vec3 &normal ) const;
+		glm::vec3 diffuseReflection( const glm::vec3 &normal ) const;
+		glm::vec3 radiance( Ray ray, int depth, const Object *prevObject = nullptr, float emission = 1.f ) const;
 
 		const Scene *m_scene;
-		sf::Vector2u m_dimension;
+		glm::uvec2 m_dimension;
 
 		mutable std::mt19937 m_gen;
 };

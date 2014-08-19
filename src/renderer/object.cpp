@@ -15,7 +15,7 @@ Material::~Material()
 {
 }
 
-Object::Object( sf::Vector3f color, sf::Vector3f emission, Material material ) :
+Object::Object( glm::vec3 color, glm::vec3 emission, Material material ) :
 	m_color( color ),
 	m_emission( emission ),
 	m_material( material )
@@ -26,22 +26,22 @@ Object::~Object()
 {
 }
 
-sf::Vector3f Object::getColor() const
+glm::vec3 Object::getColor() const
 {
 	return m_color;
 }
 
-void Object::setColor( const sf::Vector3f& color )
+void Object::setColor( const glm::vec3& color )
 {
 	m_color = color;
 }
 
-sf::Vector3f Object::getEmission() const
+glm::vec3 Object::getEmission() const
 {
 	return m_emission;
 }
 
-void Object::setEmission( const sf::Vector3f& emission )
+void Object::setEmission( const glm::vec3& emission )
 {
 	m_emission = emission;
 }

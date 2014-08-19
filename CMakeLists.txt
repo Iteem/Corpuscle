@@ -5,9 +5,9 @@ project( Corpuscle )
 # extlibs
 set( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH} )
 find_package( SFML 2 REQUIRED system window graphics network audio )
-find_package( Thor REQUIRED )
 find_package( Boost REQUIRED )
-include_directories( ${SFML_INCLUDE} ${THOR_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} )
+include_directories( ${SFML_INCLUDE} ${Boost_INCLUDE_DIRS} )
+include_directories( "${PROJECT_SOURCE_DIR}/extlibs/glm" )
 
 include_directories( ${PROJECT_SOURCE_DIR}/include )
 

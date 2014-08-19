@@ -3,11 +3,11 @@
 
 #include <random>
 
-#include <SFML/System/Vector3.hpp>
+#include <glm/glm.hpp>
 
 // generates points uniformly distributed over S2
 template< typename Generator >
-sf::Vector3f uniformOnSphere( Generator& gen );
+glm::vec3 uniformOnSphere( Generator& gen );
 
 #include "random.inl"
 

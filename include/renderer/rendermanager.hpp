@@ -7,21 +7,22 @@
 #include <thread>
 #include <vector>
 
-#include <SFML/Graphics.hpp>
+#include <glm/glm.hpp>
+#include <SFML/Graphics/Image.hpp>
 
 #include "scene.hpp"
 
 class RenderManager
 {
 	public:
-		RenderManager( sf::Vector2u dimension, unsigned int numThreads );
+		RenderManager( glm::uvec2 dimension, unsigned int numThreads );
 		~RenderManager();
 
 		void setUpdateImage( bool updateImage );
 		bool getUpdateImage() const;
 
-		sf::Vector2u getDimension() const;
-		void setDimension( sf::Vector2u dimension );
+		glm::uvec2 getDimension() const;
+		void setDimension( glm::uvec2 dimension );
 
 		bool loadSceneFromFile( const std::string& path );
 
@@ -40,9 +41,9 @@ class RenderManager
 
 		Scene m_scene;
 
-		sf::Vector2u m_dimension;
+		glm::uvec2 m_dimension;
 		std::atomic_uint m_samples;
-		std::vector< sf::Vector3f > m_pixels;
+		std::vector< glm::vec3 > m_pixels;
 		sf::Image m_image;
 		std::atomic_bool m_updateImage;
 

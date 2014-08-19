@@ -7,6 +7,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
+#include <glm/glm.hpp>
 #include <SFML/Graphics/Image.hpp>
 
 #include "cuboid.hpp"
@@ -61,8 +62,8 @@ bool Scene::loadFromJSON( const std::string &path )
 	for( auto obj : pt.get_child( "objects", ptree() ) ){
 
 		// Load common properties.
-        sf::Vector3f color    = parseVector( obj.second.get( "color", ""), sf::Vector3f( 1.f, 1.f, 1.f ) );
-        sf::Vector3f emission = parseVector( obj.second.get( "emission", ""), sf::Vector3f( 0.f, 0.f, 0.f ) );
+        glm::vec3 color    = parseVector( obj.second.get( "color", ""), glm::vec3( 1.f, 1.f, 1.f ) );
+        glm::vec3 emission = parseVector( obj.second.get( "emission", ""), glm::vec3( 0.f, 0.f, 0.f ) );
 
         Material material( Material::Type::Diffuse );
 
@@ -80,8 +81,8 @@ bool Scene::loadFromJSON( const std::string &path )
 		std::string type( obj.second.get( "type", "" ) );
 
 		if( type == "cuboid" ){
-			sf::Vector3f min = parseVector( obj.second.get( "min", "") );
-			sf::Vector3f max = parseVector( obj.second.get( "max", "") );
+			glm::vec3 min = parseVector( obj.second.get( "min", "") );
+			glm::vec3 max = parseVector( obj.second.get( "max", "") );
 
 			auto cuboid = make_unique<Cuboid>( min, max, color, emission, material );
 
@@ -96,7 +97,7 @@ bool Scene::loadFromJSON( const std::string &path )
 
 			m_objects.emplace_back( std::move( cuboid ) );
 		} else if ( type == "sphere" ){
-			sf::Vector3f pos = parseVector( obj.second.get( "pos", "") );
+			glm::vec3 pos = parseVector( obj.second.get( "pos", "") );
 			float radius = obj.second.get( "radius", 0.f );
 
 			m_objects.emplace_back( make_unique<Sphere>( radius, pos, color, emission, material ) );
@@ -107,14 +108,14 @@ bool Scene::loadFromJSON( const std::string &path )
 	}
 
 	// Load camera.
-	m_camera.setPosition( parseVector( pt.get( "camera.position", "" ), sf::Vector3f( 0.f, 0.f, 0.f ) ) );
-	m_camera.setDirection( parseVector( pt.get( "camera.direction", "" ), sf::Vector3f( 0.f, 0.f, -1.f ) ) );
+	m_camera.setPosition( parseVector( pt.get( "camera.position", "" ), glm::vec3( 0.f, 0.f, 0.f ) ) );
+	m_camera.setDirection( parseVector( pt.get( "camera.direction", "" ), glm::vec3( 0.f, 0.f, -1.f ) ) );
 	m_camera.setFOV( pt.get( "camera.FOV", 70.f ) );
 
 	// Cache lights.
 	m_lights.clear();
 	for( const auto& ptr : m_objects ){
-		sf::Vector3f emission = ptr->getEmission();
+		glm::vec3 emission = ptr->getEmission();
 		if( emission.x != 0.f || emission.y != 0.f || emission.z != 0.f ){
 			m_lights.push_back( ptr.get() );
 		}

@@ -3,11 +3,12 @@
 #include <algorithm>
 #include <cmath>
 
-#include <Thor/Vectors/VectorAlgebra3D.hpp>
+#include <glm/gtx/norm.hpp>
+#include <SFML/Graphics.hpp>
 
 #include "utility.hpp"
 
-Cuboid::Cuboid( sf::Vector3f min, sf::Vector3f max, sf::Vector3f color, sf::Vector3f emission, Material material ) :
+Cuboid::Cuboid( glm::vec3 min, glm::vec3 max, glm::vec3 color, glm::vec3 emission, Material material ) :
 	Object( color, emission, material ),
 	min( min ),
 	max( max ),
@@ -22,7 +23,7 @@ Cuboid::~Cuboid()
 
 float Cuboid::intersect( const Ray& ray ) const
 {
-	sf::Vector3f invdir( 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z );
+	glm::vec3 invdir( 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z );
 
 	auto t = std::make_pair<float, float>( ( min.x - ray.origin.x) * invdir.x, ( max.x - ray.origin.x) * invdir.x );
 	if( invdir.x < 0.f )
@@ -56,50 +57,50 @@ float Cuboid::intersect( const Ray& ray ) const
 }
 
 
-sf::Vector3f Cuboid::collisionNormal( const Ray& ray ) const
+glm::vec3 Cuboid::collisionNormal( const Ray& ray ) const
 {
-	sf::Vector3f p( ray.evaluate( intersect( ray ) ) );
+	glm::vec3 p( ray.evaluate( intersect( ray ) ) );
 
-	sf::Vector3f normal( -1.f, 0.f, 0.f );
+	glm::vec3 normal( -1.f, 0.f, 0.f );
 	float d = std::abs( min.x - p.x );
 
 	float tmp = std::abs( min.y - p.y );
 	if( tmp < d ){
 		d = tmp;
-		normal = sf::Vector3f( 0.f, -1.f, 0.f );
+		normal = glm::vec3( 0.f, -1.f, 0.f );
 	}
 	tmp = std::abs( min.z - p.z );
 	if( tmp < d ){
 		d = tmp;
-		normal = sf::Vector3f( 0.f, 0.f, -1.f );
+		normal = glm::vec3( 0.f, 0.f, -1.f );
 	}
 	tmp = std::abs( max.x - p.x );
 	if( tmp < d ){
 		d = tmp;
-		normal = sf::Vector3f( 1.f, 0.f, 0.f );
+		normal = glm::vec3( 1.f, 0.f, 0.f );
 	}
 	tmp = std::abs( max.y - p.y );
 	if( tmp < d ){
 		d = tmp;
-		normal = sf::Vector3f( 0.f, 1.f, 0.f );
+		normal = glm::vec3( 0.f, 1.f, 0.f );
 	}
 	tmp = std::abs( max.z - p.z );
 	if( tmp < d ){
 		d = tmp;
-		normal = sf::Vector3f( 0.f, 0.f, 1.f );
+		normal = glm::vec3( 0.f, 0.f, 1.f );
 	}
 
 	return normal;
 }
 
-sf::Vector3f Cuboid::collisionColor( const Ray& ray ) const
+glm::vec3 Cuboid::collisionColor( const Ray& ray ) const
 {
 	// In case no texture is set return the color of the object.
 	if( m_texture.empty() ){
 		return getColor();
 	}
 
-	sf::Vector3f p( ray.evaluate( intersect( ray ) ) );
+	glm::vec3 p( ray.evaluate( intersect( ray ) ) );
 
 	int side = 0;
 	float d = std::abs( min.x - p.x );
@@ -130,8 +131,8 @@ sf::Vector3f Cuboid::collisionColor( const Ray& ray ) const
 		side = 5;
 	}
 
-	sf::Vector3f pos = min;
-	sf::Vector3f dim = max - min;
+	glm::vec3 pos = min;
+	glm::vec3 dim = max - min;
 
 	sf::Vector2f normCoord;
 
@@ -148,17 +149,17 @@ sf::Vector3f Cuboid::collisionColor( const Ray& ray ) const
 		normCoord = sf::Vector2f( ( p.x - pos.x ) / dim.x, ( p.y - pos.y ) / dim.y );
 	}
 
-	sf::Vector3f color = m_texture[ std::max( 0u, std::min( m_textureSize.x - 1, static_cast<unsigned int>( std::floor( normCoord.x * m_textureSize.x ) ) ) ) +
-	                                std::max( 0u, std::min( m_textureSize.y - 1, static_cast<unsigned int>( std::floor( normCoord.y * m_textureSize.y ) ) ) ) * m_textureSize.x ];
+	glm::vec3 color = m_texture[ std::max( 0u, std::min( m_textureSize.x - 1, static_cast<unsigned int>( std::floor( normCoord.x * m_textureSize.x ) ) ) ) +
+								 std::max( 0u, std::min( m_textureSize.y - 1, static_cast<unsigned int>( std::floor( normCoord.y * m_textureSize.y ) ) ) ) * m_textureSize.x ];
 
-	return thor::cwiseProduct( getColor(), color );
+	return getColor() * color;
 }
 
-std::pair<Ray, float>  Cuboid::createRayToObject( std::mt19937& gen, const sf::Vector3f& point ) const
+std::pair<Ray, float>  Cuboid::createRayToObject( std::mt19937& gen, const glm::vec3& point ) const
 {
 	// This function only works correctly for far away points.
-	sf::Vector3f dim = max - min;
-	sf::Vector3f dim_2 = dim / 2.f;
+	glm::vec3 dim = max - min;
+	glm::vec3 dim_2 = dim / 2.f;
 
 	float xyArea = dim.x * dim.y;
 	float xzArea = dim.x * dim.z;
@@ -166,38 +167,38 @@ std::pair<Ray, float>  Cuboid::createRayToObject( std::mt19937& gen, const sf::V
 
 	// Calculate visible area from point.
 	float visibleArea[6];
-	visibleArea[0] = std::max( 0.f, thor::unitVector( min + sf::Vector3f( 0.f, dim_2.y, dim_2.z ) - point ).x ) * yzArea;
-	visibleArea[1] = std::max( 0.f, thor::unitVector( min + sf::Vector3f( dim_2.x, 0.f, dim_2.z ) - point ).y ) * xzArea;
-	visibleArea[2] = std::max( 0.f, thor::unitVector( min + sf::Vector3f( dim_2.x, dim_2.y, 0.f ) - point ).z ) * xyArea;
-	visibleArea[3] = std::max( 0.f, thor::unitVector( point - max - sf::Vector3f( 0.f, dim_2.y, dim_2.z ) ).x ) * yzArea;
-	visibleArea[4] = std::max( 0.f, thor::unitVector( point - max - sf::Vector3f( dim_2.x, 0.f, dim_2.z ) ).y ) * xzArea;
-	visibleArea[5] = std::max( 0.f, thor::unitVector( point - max - sf::Vector3f( dim_2.x, dim_2.y, 0.f ) ).z ) * xyArea;
+	visibleArea[0] = std::max( 0.f, glm::normalize( min + glm::vec3( 0.f, dim_2.y, dim_2.z ) - point ).x ) * yzArea;
+	visibleArea[1] = std::max( 0.f, glm::normalize( min + glm::vec3( dim_2.x, 0.f, dim_2.z ) - point ).y ) * xzArea;
+	visibleArea[2] = std::max( 0.f, glm::normalize( min + glm::vec3( dim_2.x, dim_2.y, 0.f ) - point ).z ) * xyArea;
+	visibleArea[3] = std::max( 0.f, glm::normalize( point - max - glm::vec3( 0.f, dim_2.y, dim_2.z ) ).x ) * yzArea;
+	visibleArea[4] = std::max( 0.f, glm::normalize( point - max - glm::vec3( dim_2.x, 0.f, dim_2.z ) ).y ) * xzArea;
+	visibleArea[5] = std::max( 0.f, glm::normalize( point - max - glm::vec3( dim_2.x, dim_2.y, 0.f ) ).z ) * xyArea;
 
 	std::uniform_real_distribution<float> uDist( 0.f, 1.f );
 	float eps1( uDist( gen ) );
 	float eps2( uDist( gen ) );
 
 	// Choose random side weighted by the visible area.
-	sf::Vector3f pointOnSurface;
+	glm::vec3 pointOnSurface;
 	std::discrete_distribution<> dist( std::begin( visibleArea ), std::end( visibleArea ) );
 	switch( dist( gen ) ){
 		case 0:
-			pointOnSurface = min + sf::Vector3f( 0.f, eps1 * dim.y, eps2 * dim.z );
+			pointOnSurface = min + glm::vec3( 0.f, eps1 * dim.y, eps2 * dim.z );
 			break;
 		case 1:
-			pointOnSurface = min + sf::Vector3f( eps1 * dim.x, 0.f, eps2 * dim.z );
+			pointOnSurface = min + glm::vec3( eps1 * dim.x, 0.f, eps2 * dim.z );
 			break;
 		case 2:
-			pointOnSurface = min + sf::Vector3f( eps1 * dim.x, eps2 * dim.y, 0.f );
+			pointOnSurface = min + glm::vec3( eps1 * dim.x, eps2 * dim.y, 0.f );
 			break;
 		case 3:
-			pointOnSurface = max - sf::Vector3f( 0.f, eps1 * dim.y, eps2 * dim.z );
+			pointOnSurface = max - glm::vec3( 0.f, eps1 * dim.y, eps2 * dim.z );
 			break;
 		case 4:
-			pointOnSurface = max - sf::Vector3f( eps1 * dim.x, 0.f, eps2 * dim.z );
+			pointOnSurface = max - glm::vec3( eps1 * dim.x, 0.f, eps2 * dim.z );
 			break;
 		case 5:
-			pointOnSurface = max - sf::Vector3f( eps1 * dim.x, eps2 * dim.y, 0.f );
+			pointOnSurface = max - glm::vec3( eps1 * dim.x, eps2 * dim.y, 0.f );
 			break;
 	}
 
@@ -206,14 +207,14 @@ std::pair<Ray, float>  Cuboid::createRayToObject( std::mt19937& gen, const sf::V
 		totalArea += dArea;
 	}
 
-	sf::Vector3f l = pointOnSurface - point;
+	glm::vec3 l = pointOnSurface - point;
 
-	return std::make_pair( Ray( point, thor::unitVector( l ) ), totalArea / thor::squaredLength( l ) );
+	return std::make_pair( Ray( point, glm::normalize( l ) ), totalArea / glm::length2( l ) );
 }
 
 void Cuboid::setTexture( const sf::Image& image )
 {
-	m_textureSize = image.getSize();
+	m_textureSize = glm::uvec2( image.getSize().x, image.getSize().y );
 
 	m_texture.resize( m_textureSize.x * m_textureSize.y );
 	m_texture.shrink_to_fit();
@@ -222,14 +223,14 @@ void Cuboid::setTexture( const sf::Image& image )
 		for( unsigned int y = 0; y < m_textureSize.y; ++y ){
 			sf::Color col = image.getPixel( x, y );
 			// Textures are gamma-corrected, so don't forget to reverse that.
-			m_texture[ x + y * m_textureSize.x ] = gammmaCorrected( sf::Vector3f( col.r / 255.f, col.g / 255.f, col.b / 255.f ), 2.2f );
+			m_texture[ x + y * m_textureSize.x ] = gammmaCorrected( glm::vec3( col.r / 255.f, col.g / 255.f, col.b / 255.f ), 2.2f );
 		}
 	}
 }
 
 void Cuboid::clearTexture()
 {
-	m_textureSize = sf::Vector2u( 0, 0 );
+	m_textureSize = glm::uvec2();
 
 	m_texture.clear();
 	m_texture.shrink_to_fit();

@@ -1,7 +1,7 @@
 #include <cmath>
 
 template< typename Generator >
-sf::Vector3f uniformOnSphere( Generator& gen )
+glm::uvec3 uniformOnSphere( Generator& gen )
 {
 	// We use that the solid angle is constant here:
 	// domega = sin(theta) * dtheta * dphi = const
@@ -19,5 +19,5 @@ sf::Vector3f uniformOnSphere( Generator& gen )
 	float sinephi = std::sqrt( 1 - u*u );
 
 	// Return result in Cartesian coordinates.
-	return sf::Vector3f( sinephi * std::cos( phi ), sinephi * std::sin( phi ), u);
+	return glm::vec3( sinephi * std::cos( phi ), sinephi * std::sin( phi ), u);
 }

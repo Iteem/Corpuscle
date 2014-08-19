@@ -1,17 +1,17 @@
 #ifndef RAY_HPP_INCLUDED
 #define RAY_HPP_INCLUDED
 
-#include <SFML/System/Vector3.hpp>
+#include <glm/glm.hpp>
 
 struct Ray
 {
-	Ray( sf::Vector3f origin, sf::Vector3f direction );
+	Ray( glm::vec3 origin, glm::vec3 direction );
 	~Ray();
 
-	sf::Vector3f evaluate( float time ) const;
+	glm::vec3 evaluate( float time ) const;
 
-	sf::Vector3f origin;
-	sf::Vector3f direction;
+	glm::vec3 origin;
+	glm::vec3 direction;
 };
 
 #endif // RAY_HPP_INCLUDED

@@ -3,11 +3,11 @@
 #include <algorithm>
 #include <cmath>
 
-#include <Thor/Vectors/VectorAlgebra3D.hpp>
+#include <glm/gtx/norm.hpp>
 
 #include "utility.hpp"
 
-Sphere::Sphere( float radius, sf::Vector3f center, sf::Vector3f color, sf::Vector3f emission, Material material ) :
+Sphere::Sphere( float radius, glm::vec3 center, glm::vec3 color, glm::vec3 emission, Material material ) :
 	Object( color, emission, material ),
 	radius( radius ),
 	center( center )
@@ -22,12 +22,12 @@ Sphere::~Sphere()
 float Sphere::intersect( const Ray& ray ) const
 {
 	// This way we can ignore the origin of the ray.
-	sf::Vector3f op = center - ray.origin;
+	glm::vec3 op = center - ray.origin;
 
 	// Solve the equation length(t*ray.direction - op) = radius for t.
 	// If there it is no solution, return an uninitialized optional.
-	float b = thor::dotProduct( op, ray.direction );
-	float D = b*b - thor::squaredLength( op ) + radius*radius;
+	float b = glm::dot( op, ray.direction );
+	float D = b*b - glm::length2( op ) + radius*radius;
 
 	if( D < 0 ){
 		return inf;
@@ -38,27 +38,27 @@ float Sphere::intersect( const Ray& ray ) const
 }
 
 
-sf::Vector3f Sphere::collisionNormal( const Ray& ray ) const
+glm::vec3 Sphere::collisionNormal( const Ray& ray ) const
 {
 	float time = intersect( ray );
 	if( time == inf )
-		return sf::Vector3f();
+		return glm::vec3();
 
-	return thor::unitVector( ray.evaluate( time ) - center );
+	return glm::normalize( ray.evaluate( time ) - center );
 }
 
 
-sf::Vector3f Sphere::collisionColor( const Ray& ray ) const
+glm::vec3 Sphere::collisionColor( const Ray& ray ) const
 {
 	return getColor();
 }
 
-std::pair<Ray, float> Sphere::createRayToObject( std::mt19937& gen, const sf::Vector3f& point ) const
+std::pair<Ray, float> Sphere::createRayToObject( std::mt19937& gen, const glm::vec3& point ) const
 {
-	sf::Vector3f sw = center - point;
-	sf::Vector3f su = thor::unitVector( thor::crossProduct( fabs(sw.x) > .1f ? sf::Vector3f( 0.f, 1.f, 0.f ) : sf::Vector3f( 1.f, 0.f, 0.f ), sw ) );
-	sf::Vector3f sv = thor::crossProduct( sw, su );
-	float cos_a_max = std::sqrt( 1 - radius*radius / thor::squaredLength( sw ) );
+	glm::vec3 sw = center - point;
+	glm::vec3 su = glm::normalize( glm::cross( fabs(sw.x) > .1f ? glm::vec3( 0.f, 1.f, 0.f ) : glm::vec3( 1.f, 0.f, 0.f ), sw ) );
+	glm::vec3 sv = glm::cross( sw, su );
+	float cos_a_max = std::sqrt( 1 - radius*radius / glm::length2( sw ) );
 
 	static std::uniform_real_distribution<float> dist( 0.f, 1.f );
 	float eps1 = dist( gen );
@@ -68,7 +68,7 @@ std::pair<Ray, float> Sphere::createRayToObject( std::mt19937& gen, const sf::Ve
 	float eps2 = dist( gen );
 	float phi = 2.f * PI * eps2;
 
-	sf::Vector3f l = thor::unitVector( su * std::cos( phi ) * sin_a + sv * std::sin( phi ) * sin_a + sw * cos_a );
+	glm::vec3 l = glm::normalize( su * std::cos( phi ) * sin_a + sv * std::sin( phi ) * sin_a + sw * cos_a );
 
 	float area = 2.f * PI * ( 1.f - cos_a_max );
 

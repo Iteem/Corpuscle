@@ -4,7 +4,7 @@
 #include <random>
 #include <utility>
 
-#include <SFML/System/Vector3.hpp>
+#include <glm/glm.hpp>
 
 #include "ray.hpp"
 
@@ -28,27 +28,27 @@ public:
 class Object
 {
 public:
-	Object( sf::Vector3f color, sf::Vector3f emission, Material material );
+	Object( glm::vec3 color, glm::vec3 emission, Material material );
 	virtual ~Object();
 
-	sf::Vector3f getColor() const;
-	void setColor( const sf::Vector3f& color );
+	glm::vec3 getColor() const;
+	void setColor( const glm::vec3& color );
 
-	sf::Vector3f getEmission() const;
-	void setEmission( const sf::Vector3f& emission );
+	glm::vec3 getEmission() const;
+	void setEmission( const glm::vec3& emission );
 
 	virtual float intersect( const Ray& ray ) const = 0;
-	virtual sf::Vector3f collisionNormal( const Ray& ray ) const = 0;
-	virtual sf::Vector3f collisionColor( const Ray& ray ) const = 0;
+	virtual glm::vec3 collisionNormal( const Ray& ray ) const = 0;
+	virtual glm::vec3 collisionColor( const Ray& ray ) const = 0;
 
-	virtual std::pair<Ray, float> createRayToObject( std::mt19937& gen, const sf::Vector3f& point ) const = 0;
+	virtual std::pair<Ray, float> createRayToObject( std::mt19937& gen, const glm::vec3& point ) const = 0;
 
 	Material getMaterial() const;
 	void setMaterial( Material material );
 
 private:
-	sf::Vector3f m_color;
-	sf::Vector3f m_emission;
+	glm::vec3 m_color;
+	glm::vec3 m_emission;
 
 	Material m_material;
 };
