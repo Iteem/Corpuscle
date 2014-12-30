@@ -138,6 +138,9 @@ int RenderManager::getNextJob()
 				// Don't let any other thread interfere before we're done setting up the next round.
 				std::unique_lock<std::mutex> lock( m_mutex );
 
+				++m_samples;
+				m_currentLine = 0;
+
 				// Save the progress to the image if requested.
 				if( m_updateImage ){
 					std::lock_guard<std::mutex> lock( m_imageMutex );
@@ -154,8 +157,6 @@ int RenderManager::getNextJob()
 					}
 				}
 
-				++m_samples;
-				m_currentLine = 0;
 
 				// Make sure the party doesn't start without us.
 				++m_numRunningThreads;

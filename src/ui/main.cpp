@@ -18,7 +18,7 @@ const sf::Vector2u   r16K( 15360,  8640 );
 const sf::Vector2u screenSize( r720p );
 const sf::Vector2u renderSize( r720p );
 
-const unsigned int guiSize = 80;
+const unsigned int guiSize = 250;
 
 const int sampleDisplayInterval = 10;
 const unsigned int numThreads = 4;
@@ -26,27 +26,31 @@ const unsigned int numThreads = 4;
 int main()
 {
 	// Window.
-	sf::RenderWindow window( sf::VideoMode(screenSize.x, screenSize.y), "Corpuscle", sf::Style::Titlebar | sf::Style::Close  );
+	sf::RenderWindow window( sf::VideoMode(screenSize.x + guiSize, screenSize.y), "Corpuscle", sf::Style::Titlebar | sf::Style::Close  );
 	window.setVerticalSyncEnabled( true );
 
 	// GUI.
 	sfg::SFGUI sfgui;
 
-	auto sfgWindow = sfg::Window::Create( sfg::Window::Style::NO_STYLE );
-	sfgWindow->SetPosition( sf::Vector2f( 0.f, screenSize.y - guiSize ) );
-	sfgWindow->SetRequisition( sf::Vector2f( screenSize.x, guiSize ) );
 
-	auto box = sfg::Box::Create();
-	sfgWindow->Add( box );
+	auto box = sfg::Box::Create( sfg::Box::Orientation::VERTICAL, 5.f );
+
+	auto checkButton = sfg::CheckButton::Create( "Update preview" );
+	checkButton->SetActive( true );
+	box->Pack( checkButton );
+
+	auto spsLabel = sfg::Label::Create( "SPS: 0" );
+	box->Pack( spsLabel );
 
 	auto alignment = sfg::Alignment::Create();
 	alignment->SetScale( sf::Vector2f( 0.f, 0.f ) );
 	alignment->SetAlignment( sf::Vector2f( 0.5f, 0.5f ) );
-	box->Pack( alignment );
+	alignment->Add( box );
 
-	auto button = sfg::Button::Create( "Close" );
-	button->GetSignal( sfg::Widget::OnLeftClick ).Connect( [&window]{ window.close(); } );
-	alignment->Add( button );
+	auto sfgWindow = sfg::Window::Create( sfg::Window::Style::BACKGROUND );
+	sfgWindow->SetPosition( sf::Vector2f( screenSize.x, 0.f ) );
+	sfgWindow->SetRequisition( sf::Vector2f( guiSize, screenSize.y ) );
+	sfgWindow->Add( alignment );
 
 	sfg::Desktop desktop;
 	desktop.Add( sfgWindow );
@@ -63,17 +67,19 @@ int main()
 		static_cast<float>(screenSize.y)/static_cast<float>(renderSize.y)
 	);
 
-
 	// Set up RenderManager and start the rendering process.
 	RenderManager rm( glm::uvec2( renderSize.x, renderSize.y ), numThreads );
 	rm.loadSceneFromFile( "data/scene.json" );
-	rm.setUpdateImage( false );
+	rm.setUpdateImage( true );
 	rm.startRendering();
 
-	unsigned int prevSamples = 0;
+	checkButton->GetSignal( sfg::CheckButton::OnStateChange ).Connect( [&]{ rm.setUpdateImage( checkButton->IsActive() ); } );
 
 	// Clock for measuring the frame time
 	sf::Clock frameClock;
+	sf::Clock renderPassClock;
+
+	unsigned int prevSamples = 0;
 
 	// Main loop.
 	while( window.isOpen() ){
@@ -100,26 +106,23 @@ int main()
 		desktop.Update( frameTime );
 
 		if( prevSamples != samples ){
-			// Only update the image every Nth sample.
-			if( samples % sampleDisplayInterval == 0 ){
-				prevSamples = samples;
+			int sps = std::floor( renderSize.x * renderSize.y / renderPassClock.restart().asSeconds() );
+			prevSamples = samples;
 
+			if( checkButton->IsActive() ){
 				// Update Image.
 				img = rm.getImage();
 				tex.loadFromImage( img );
+			}
 
-				rm.setUpdateImage( false );
-			}
-			// Don't forget to request a image update before.
-			else if( samples % (sampleDisplayInterval-1) == 0 ){
-				rm.setUpdateImage( true );
-			}
+			spsLabel->SetText( "SPP: " + std::to_string( sps ) );
+
+			window.setTitle(
+				"Corpuscle @ "+std::to_string(renderSize.x) + "x" + std::to_string(renderSize.y) +
+					" & " + std::to_string(numThreads) + " Threads - SPP: " + std::to_string( samples )
+			);
 		}
 
-		window.setTitle(
-			"Corpuscle @ "+std::to_string(renderSize.x) + "x" + std::to_string(renderSize.y) +
-				" & " + std::to_string(numThreads) + " Threads - SPP: " + std::to_string( samples )
-		);
 
 		// Drawing.
 		window.clear();
