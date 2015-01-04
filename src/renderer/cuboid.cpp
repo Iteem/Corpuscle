@@ -8,10 +8,9 @@
 
 #include "utility.hpp"
 
-Cuboid::Cuboid( glm::vec3 min, glm::vec3 max, glm::vec3 color, glm::vec3 emission, Material material ) :
+Cuboid::Cuboid( glm::vec3 lower, glm::vec3 upper, glm::vec3 color, glm::vec3 emission, Material material ) :
 	Object( color, emission, material ),
-	min( min ),
-	max( max ),
+	aabb( lower, upper ),
 	m_textureSize( 0, 0 )
 {
 }
@@ -25,11 +24,11 @@ float Cuboid::intersect( const Ray& ray ) const
 {
 	glm::vec3 invdir( 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z );
 
-	auto t = std::make_pair<float, float>( ( min.x - ray.origin.x) * invdir.x, ( max.x - ray.origin.x) * invdir.x );
+	auto t = std::make_pair<float, float>( ( aabb.lower.x - ray.origin.x) * invdir.x, ( aabb.upper.x - ray.origin.x) * invdir.x );
 	if( invdir.x < 0.f )
 		std::swap( t.first, t.second );
 
-	auto ty = std::make_pair<float, float>( ( min.y - ray.origin.y) * invdir.y, ( max.y - ray.origin.y) * invdir.y );
+	auto ty = std::make_pair<float, float>( ( aabb.lower.y - ray.origin.y) * invdir.y, ( aabb.upper.y - ray.origin.y) * invdir.y );
 	if( invdir.y < 0.f )
 		std::swap( ty.first, ty.second );
 
@@ -41,7 +40,7 @@ float Cuboid::intersect( const Ray& ray ) const
 	if (ty.second < t.second)
 		t.second = ty.second;
 
-	auto tz = std::make_pair<float, float>( ( min.z - ray.origin.z) * invdir.z, ( max.z - ray.origin.z) * invdir.z );
+	auto tz = std::make_pair<float, float>( ( aabb.lower.z - ray.origin.z) * invdir.z, ( aabb.upper.z - ray.origin.z) * invdir.z );
 	if( invdir.z < 0.f )
 		std::swap( tz.first, tz.second );
 
@@ -62,29 +61,29 @@ glm::vec3 Cuboid::collisionNormal( const Ray& ray ) const
 	glm::vec3 p( ray.evaluate( intersect( ray ) ) );
 
 	glm::vec3 normal( -1.f, 0.f, 0.f );
-	float d = std::abs( min.x - p.x );
+	float d = std::abs( aabb.lower.x - p.x );
 
-	float tmp = std::abs( min.y - p.y );
+	float tmp = std::abs( aabb.lower.y - p.y );
 	if( tmp < d ){
 		d = tmp;
 		normal = glm::vec3( 0.f, -1.f, 0.f );
 	}
-	tmp = std::abs( min.z - p.z );
+	tmp = std::abs( aabb.lower.z - p.z );
 	if( tmp < d ){
 		d = tmp;
 		normal = glm::vec3( 0.f, 0.f, -1.f );
 	}
-	tmp = std::abs( max.x - p.x );
+	tmp = std::abs( aabb.upper.x - p.x );
 	if( tmp < d ){
 		d = tmp;
 		normal = glm::vec3( 1.f, 0.f, 0.f );
 	}
-	tmp = std::abs( max.y - p.y );
+	tmp = std::abs( aabb.upper.y - p.y );
 	if( tmp < d ){
 		d = tmp;
 		normal = glm::vec3( 0.f, 1.f, 0.f );
 	}
-	tmp = std::abs( max.z - p.z );
+	tmp = std::abs( aabb.upper.z - p.z );
 	if( tmp < d ){
 		d = tmp;
 		normal = glm::vec3( 0.f, 0.f, 1.f );
@@ -103,36 +102,36 @@ glm::vec3 Cuboid::collisionColor( const Ray& ray ) const
 	glm::vec3 p( ray.evaluate( intersect( ray ) ) );
 
 	int side = 0;
-	float d = std::abs( min.x - p.x );
+	float d = std::abs( aabb.lower.x - p.x );
 
-	float tmp = std::abs( min.y - p.y );
+	float tmp = std::abs( aabb.lower.y - p.y );
 	if( tmp < d ){
 		d = tmp;
 		side = 1;
 	}
-	tmp = std::abs( min.z - p.z );
+	tmp = std::abs( aabb.lower.z - p.z );
 	if( tmp < d ){
 		d = tmp;
 		side = 2;
 	}
-	tmp = std::abs( max.x - p.x );
+	tmp = std::abs( aabb.upper.x - p.x );
 	if( tmp < d ){
 		d = tmp;
 		side = 3;
 	}
-	tmp = std::abs( max.y - p.y );
+	tmp = std::abs( aabb.upper.y - p.y );
 	if( tmp < d ){
 		d = tmp;
 		side = 4;
 	}
-	tmp = std::abs( max.z - p.z );
+	tmp = std::abs( aabb.upper.z - p.z );
 	if( tmp < d ){
 		d = tmp;
 		side = 5;
 	}
 
-	glm::vec3 pos = min;
-	glm::vec3 dim = max - min;
+	glm::vec3 pos = aabb.lower;
+	glm::vec3 dim = aabb.getSize();
 
 	sf::Vector2f normCoord;
 
@@ -158,7 +157,7 @@ glm::vec3 Cuboid::collisionColor( const Ray& ray ) const
 std::pair<Ray, float>  Cuboid::createRayToObject( std::mt19937& gen, const glm::vec3& point ) const
 {
 	// This function only works correctly for far away points.
-	glm::vec3 dim = max - min;
+	glm::vec3 dim = aabb.getSize();
 	glm::vec3 dim_2 = dim / 2.f;
 
 	float xyArea = dim.x * dim.y;
@@ -167,12 +166,12 @@ std::pair<Ray, float>  Cuboid::createRayToObject( std::mt19937& gen, const glm::
 
 	// Calculate visible area from point.
 	float visibleArea[6];
-	visibleArea[0] = std::max( 0.f, glm::normalize( min + glm::vec3( 0.f, dim_2.y, dim_2.z ) - point ).x ) * yzArea;
-	visibleArea[1] = std::max( 0.f, glm::normalize( min + glm::vec3( dim_2.x, 0.f, dim_2.z ) - point ).y ) * xzArea;
-	visibleArea[2] = std::max( 0.f, glm::normalize( min + glm::vec3( dim_2.x, dim_2.y, 0.f ) - point ).z ) * xyArea;
-	visibleArea[3] = std::max( 0.f, glm::normalize( point - max - glm::vec3( 0.f, dim_2.y, dim_2.z ) ).x ) * yzArea;
-	visibleArea[4] = std::max( 0.f, glm::normalize( point - max - glm::vec3( dim_2.x, 0.f, dim_2.z ) ).y ) * xzArea;
-	visibleArea[5] = std::max( 0.f, glm::normalize( point - max - glm::vec3( dim_2.x, dim_2.y, 0.f ) ).z ) * xyArea;
+	visibleArea[0] = std::max( 0.f, glm::normalize( aabb.lower + glm::vec3( 0.f, dim_2.y, dim_2.z ) - point ).x ) * yzArea;
+	visibleArea[1] = std::max( 0.f, glm::normalize( aabb.lower + glm::vec3( dim_2.x, 0.f, dim_2.z ) - point ).y ) * xzArea;
+	visibleArea[2] = std::max( 0.f, glm::normalize( aabb.lower + glm::vec3( dim_2.x, dim_2.y, 0.f ) - point ).z ) * xyArea;
+	visibleArea[3] = std::max( 0.f, glm::normalize( point - aabb.upper - glm::vec3( 0.f, dim_2.y, dim_2.z ) ).x ) * yzArea;
+	visibleArea[4] = std::max( 0.f, glm::normalize( point - aabb.upper - glm::vec3( dim_2.x, 0.f, dim_2.z ) ).y ) * xzArea;
+	visibleArea[5] = std::max( 0.f, glm::normalize( point - aabb.upper - glm::vec3( dim_2.x, dim_2.y, 0.f ) ).z ) * xyArea;
 
 	std::uniform_real_distribution<float> uDist( 0.f, 1.f );
 	float eps1( uDist( gen ) );
@@ -183,22 +182,22 @@ std::pair<Ray, float>  Cuboid::createRayToObject( std::mt19937& gen, const glm::
 	std::discrete_distribution<> dist( std::begin( visibleArea ), std::end( visibleArea ) );
 	switch( dist( gen ) ){
 		case 0:
-			pointOnSurface = min + glm::vec3( 0.f, eps1 * dim.y, eps2 * dim.z );
+			pointOnSurface = aabb.lower + glm::vec3( 0.f, eps1 * dim.y, eps2 * dim.z );
 			break;
 		case 1:
-			pointOnSurface = min + glm::vec3( eps1 * dim.x, 0.f, eps2 * dim.z );
+			pointOnSurface = aabb.lower + glm::vec3( eps1 * dim.x, 0.f, eps2 * dim.z );
 			break;
 		case 2:
-			pointOnSurface = min + glm::vec3( eps1 * dim.x, eps2 * dim.y, 0.f );
+			pointOnSurface = aabb.lower + glm::vec3( eps1 * dim.x, eps2 * dim.y, 0.f );
 			break;
 		case 3:
-			pointOnSurface = max - glm::vec3( 0.f, eps1 * dim.y, eps2 * dim.z );
+			pointOnSurface = aabb.upper - glm::vec3( 0.f, eps1 * dim.y, eps2 * dim.z );
 			break;
 		case 4:
-			pointOnSurface = max - glm::vec3( eps1 * dim.x, 0.f, eps2 * dim.z );
+			pointOnSurface = aabb.upper - glm::vec3( eps1 * dim.x, 0.f, eps2 * dim.z );
 			break;
 		case 5:
-			pointOnSurface = max - glm::vec3( eps1 * dim.x, eps2 * dim.y, 0.f );
+			pointOnSurface = aabb.upper - glm::vec3( eps1 * dim.x, eps2 * dim.y, 0.f );
 			break;
 	}
 
@@ -210,6 +209,11 @@ std::pair<Ray, float>  Cuboid::createRayToObject( std::mt19937& gen, const glm::
 	glm::vec3 l = pointOnSurface - point;
 
 	return std::make_pair( Ray( point, glm::normalize( l ) ), totalArea / glm::length2( l ) );
+}
+
+AABB Cuboid::getAABB() const
+{
+	return aabb;
 }
 
 void Cuboid::setTexture( const sf::Image& image )

@@ -53,6 +53,11 @@ glm::vec3 Sphere::collisionColor( const Ray& ray ) const
 	return getColor();
 }
 
+AABB Sphere::getAABB() const
+{
+	return AABB( center - glm::vec3( radius ), center + glm::vec3( radius ) );
+}
+
 std::pair<Ray, float> Sphere::createRayToObject( std::mt19937& gen, const glm::vec3& point ) const
 {
 	glm::vec3 sw = center - point;

@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 
+#include "aabb.hpp"
 #include "ray.hpp"
 
 class Material
@@ -42,6 +43,8 @@ public:
 	virtual glm::vec3 collisionColor( const Ray& ray ) const = 0;
 
 	virtual std::pair<Ray, float> createRayToObject( std::mt19937& gen, const glm::vec3& point ) const = 0;
+
+	virtual AABB getAABB() const = 0;
 
 	Material getMaterial() const;
 	void setMaterial( Material material );

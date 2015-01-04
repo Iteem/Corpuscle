@@ -17,6 +17,8 @@ class Sphere : public Object
 
 		virtual std::pair<Ray, float> createRayToObject( std::mt19937& gen, const glm::vec3& point ) const;
 
+		virtual AABB getAABB() const;
+
 		float radius;
 		glm::vec3 center;
 };

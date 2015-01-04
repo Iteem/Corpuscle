@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <SFML/Graphics/Image.hpp>
 
+#include "aabb.hpp"
 #include "object.hpp"
 
 class Cuboid : public Object
@@ -20,11 +21,12 @@ class Cuboid : public Object
 
 		virtual std::pair<Ray, float> createRayToObject( std::mt19937& gen, const glm::vec3& point ) const;
 
+		virtual AABB getAABB() const;
+
 		void setTexture( const sf::Image& image );
 		void clearTexture();
 
-		glm::vec3 min;
-		glm::vec3 max;
+		AABB aabb;
 
 	private:
 		std::vector<glm::vec3> m_texture;
