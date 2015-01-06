@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 
+#include "ray.hpp"
+
 class AABB
 {
 	public:
@@ -13,6 +15,9 @@ class AABB
 		glm::vec3 getCenter() const;
 		float getVolume() const;
 
+		void extend( const AABB& other );
+
+		float intersect( const Ray& ray ) const;
 
 		glm::vec3 lower;
 		glm::vec3 upper;

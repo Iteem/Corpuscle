@@ -115,7 +115,7 @@ int main()
 				tex.loadFromImage( img );
 			}
 
-			spsLabel->SetText( "SPP: " + std::to_string( sps ) );
+			spsLabel->SetText( "SPS: " + std::to_string( sps ) );
 
 			window.setTitle(
 				"Corpuscle @ "+std::to_string(renderSize.x) + "x" + std::to_string(renderSize.y) +

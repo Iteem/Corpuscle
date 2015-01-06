@@ -5,6 +5,7 @@ include_directories( ${INC_DIR} )
 
 set( SOURCES
 	${INC_DIR}/aabb.hpp
+	${INC_DIR}/bvh.hpp
 	${INC_DIR}/camera.hpp
 	${INC_DIR}/cuboid.hpp
 	${INC_DIR}/object.hpp
@@ -18,6 +19,7 @@ set( SOURCES
 	${INC_DIR}/utility.hpp
 	${INC_DIR}/utility.inl
 	${SRC_DIR}/aabb.cpp
+	${SRC_DIR}/bvh.cpp
 	${SRC_DIR}/camera.cpp
 	${SRC_DIR}/cuboid.cpp
 	${SRC_DIR}/object.cpp

@@ -22,9 +22,21 @@ Scene::~Scene()
 {
 }
 
+std::vector<const Object*> Scene::getObjects() const
+{
+	std::vector<const Object*> vec;
+	vec.reserve( m_objects.size() );
+	for( const auto& obj : m_objects ){
+		vec.push_back( obj.get() );
+	}
+	return vec;
+}
+
 std::pair<float, const Object *> Scene::getCollision( const Ray &ray, const Object *prevObject ) const
 {
-	float t = inf;
+	return m_bvh.getCollision( ray, prevObject );
+
+	/*float t = inf;
 	Object * obj = nullptr;
 	for( unsigned int i = 0; i < m_objects.size(); ++i ){
 		float tmp = m_objects[i]->intersect( ray );
@@ -35,7 +47,7 @@ std::pair<float, const Object *> Scene::getCollision( const Ray &ray, const Obje
 		}
 	}
 
-	return std::make_pair( t, obj );
+	return std::make_pair( t, obj );*/
 }
 
 const std::vector<const Object *>& Scene::getLights() const
@@ -120,6 +132,9 @@ bool Scene::loadFromJSON( const std::string &path )
 			m_lights.push_back( ptr.get() );
 		}
 	}
+
+	// Construct BVH.
+	m_bvh.construct( getObjects() );
 
     return true;
 }

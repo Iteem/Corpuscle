@@ -4,6 +4,7 @@
 #include <memory>
 #include <utility>
 
+#include "bvh.hpp"
 #include "camera.hpp"
 #include "object.hpp"
 #include "ray.hpp"
@@ -13,6 +14,8 @@ class Scene
 	 public:
 		Scene();
 		~Scene();
+
+		std::vector<const Object*> getObjects() const;
 
 		std::pair<float, const Object *> getCollision( const Ray &ray, const Object *prevObject ) const;
 		const std::vector<const Object *>& getLights() const;
@@ -24,6 +27,8 @@ class Scene
 
 	 private:
 	 	Camera m_camera;
+	 	BVH m_bvh;
+
 		std::vector< std::unique_ptr<Object> > m_objects;
 		std::vector<const Object *> m_lights;
 };
