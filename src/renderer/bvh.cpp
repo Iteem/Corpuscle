@@ -64,6 +64,10 @@ bool BVH::Node::isLeaf() const
 
 std::pair<float, const Object *> BVH::Node::getCollision( const std::vector<const Object *> &objects, const Ray &ray, const Object *prevObject ) const
 {
+	if( aabb.intersect( ray ) == inf ){
+		return std::make_pair( inf, nullptr );
+	}
+
 	if( isLeaf() ){
 		float t = inf;
 		const Object *obj = nullptr;
@@ -79,7 +83,7 @@ std::pair<float, const Object *> BVH::Node::getCollision( const std::vector<cons
 	}
 	else {
 		auto leftPair = left->getCollision( objects, ray, prevObject );
-		auto rightPair = left->getCollision( objects, ray, prevObject );
+		auto rightPair = right->getCollision( objects, ray, prevObject );
 
 		return leftPair.first < rightPair.first ? leftPair : rightPair;
 	}
