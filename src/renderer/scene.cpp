@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <SFML/Graphics/Image.hpp>
 
+#include "nbt/chunk.hpp"
 #include "cuboid.hpp"
 #include "sphere.hpp"
 #include "utility.hpp"
@@ -119,9 +120,26 @@ bool Scene::loadFromJSON( const std::string &path )
 		}
 	}
 
+	// Load NBT.
+	std::string nbtPath = pt.get( "nbt.path", "" );
+	if( nbtPath != "" ){
+		Chunk chunk;
+		if( chunk.load( nbtPath, 0, 0 ) ){
+			for( int x = 0; x < 16; ++x ){
+				for( int y = 80; y < 256; ++y ){
+					for( int z = 0; z < 16; ++z ){
+						if( chunk.getBlock( glm::uvec3( x, y, z ) ).first != 0 ){
+							m_objects.emplace_back( make_unique<Cuboid>( glm::vec3(x,y,z), glm::vec3( x+1 , y + 1, z + 1), glm::vec3(1,1,1) ) );
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// Load camera.
 	m_camera.setPosition( parseVector( pt.get( "camera.position", "" ), glm::vec3( 0.f, 0.f, 0.f ) ) );
-	m_camera.setDirection( parseVector( pt.get( "camera.direction", "" ), glm::vec3( 0.f, 0.f, -1.f ) ) );
+	m_camera.setDirection( glm::normalize( parseVector( pt.get( "camera.direction", "" ), glm::vec3( 0.f, 0.f, -1.f ) ) ) );
 	m_camera.setFOV( pt.get( "camera.FOV", 70.f ) );
 
 	// Cache lights.
@@ -135,6 +153,7 @@ bool Scene::loadFromJSON( const std::string &path )
 
 	// Construct BVH.
 	m_bvh.construct( getObjects() );
+	m_bvh.print();
 
     return true;
 }

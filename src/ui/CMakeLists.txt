@@ -11,5 +11,5 @@ set( SOURCES
 )
 
 add_executable( ${CMAKE_PROJECT_NAME} ${SOURCES})
-target_link_libraries( ${CMAKE_PROJECT_NAME} ${SFML_LIBRARIES} ${THOR_LIBRARY} ${SFGUI_LIBRARY} ${Boost_LIBRARIES} )
-target_link_libraries ( ${CMAKE_PROJECT_NAME} corpuscle-renderer) 
+target_link_libraries( ${CMAKE_PROJECT_NAME} ${SFML_LIBRARIES} ${SFGUI_LIBRARY} ${Boost_LIBRARIES} )
+target_link_libraries ( ${CMAKE_PROJECT_NAME} corpuscle-renderer ) 

@@ -26,6 +26,7 @@ endif()
 # Make sure our executables end up in the top directory.
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
 
+add_subdirectory( ${PROJECT_SOURCE_DIR}/src/nbt )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/src/renderer )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/src/ui )
 
