@@ -17,7 +17,8 @@ class Chunk
 
 		bool load( const std::string &path, int x, int z );
 
-		std::pair<uint8_t, uint8_t> getBlock( glm::uvec3 pos );
+		std::pair<uint8_t, uint8_t> getBlock( glm::vec3 pos );
+		bool isBlockVisible( glm::vec3 pos );
 
 	private:
 		std::vector<uint8_t> m_blocks;

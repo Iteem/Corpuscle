@@ -128,8 +128,8 @@ bool Scene::loadFromJSON( const std::string &path )
 			for( int x = 0; x < 16; ++x ){
 				for( int y = 0; y < 256; ++y ){
 					for( int z = 0; z < 16; ++z ){
-						if( chunk.getBlock( glm::uvec3( x, y, z ) ).first != 0 ){
-							m_objects.emplace_back( make_unique<Cuboid>( glm::vec3(x,y,z), glm::vec3( x + 1 , y + 1, z + 1), glm::vec3(1,1,1) ) );
+						if( chunk.isBlockVisible( glm::vec3( x, y, z ) ) ){
+							m_objects.emplace_back( make_unique<Cuboid>( glm::vec3(x,y,z), glm::vec3( x + 1 , y + 1, z + 1), glm::vec3( 0.5f, 0.5f, 0.5f ) ) );
 						}
 					}
 				}

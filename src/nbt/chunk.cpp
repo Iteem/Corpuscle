@@ -111,13 +111,32 @@ bool Chunk::load( const std::string &path, int x, int z )
 	return true;
 }
 
-std::pair<uint8_t, uint8_t> Chunk::getBlock( glm::uvec3 pos )
+std::pair<uint8_t, uint8_t> Chunk::getBlock( glm::vec3 pos )
 {
-	size_t index = pos.y * 16 * 16 + pos.z * 16 + pos.x;
-
-	if( index >= m_blocks.size() ){
+	if( pos.x < 0 || pos.x >= 16 ||  pos.x < 0 || pos.y >= 256 || pos.z < 0 || pos.z >= 16){
 		return std::make_pair( 0, 0 );
 	}
 
+	size_t index = pos.y * 16 * 16 + pos.z * 16 + pos.x;
 	return std::make_pair( m_blocks[index], m_data[index] );
 }
+
+bool Chunk::isBlockVisible( glm::vec3 pos )
+{
+	if( getBlock( pos ).first == 0 ){
+		return false;
+	}
+
+	for( int x = -1; x <= 1; ++x ){
+		for( int y = -1; y <= 1; ++y ){
+			for( int z = -1; z <= 1; ++z ){
+				if( getBlock( pos + glm::vec3( x, y, z ) ).first == 0 ){
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
