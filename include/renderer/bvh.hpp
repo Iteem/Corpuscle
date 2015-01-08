@@ -31,8 +31,6 @@ class BVH
 
 			void print(std::string indent);
 
-			static const unsigned int ObjectsPerLeaf = 5;
-
 			AABB aabb;
 			unsigned int numChilds = 0;
 

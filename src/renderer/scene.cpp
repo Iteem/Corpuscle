@@ -153,7 +153,7 @@ bool Scene::loadFromJSON( const std::string &path )
 
 	// Construct BVH.
 	m_bvh.construct( getObjects() );
-	//m_bvh.print();
+	m_bvh.print();
 
     return true;
 }

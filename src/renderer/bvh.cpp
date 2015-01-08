@@ -5,6 +5,15 @@
 
 #include <glm/gtx/string_cast.hpp>
 
+AABB calculateAABB( std::vector<const Object *> &objects, size_t left, size_t right )
+{
+	AABB aabb( objects[left]->getAABB() );
+	for( size_t i = left + 1; i < right; ++i ){
+		aabb.extend( objects[i]->getAABB() );
+	}
+	return aabb;
+}
+
 BVH::BVH( std::vector<const Object *> objects )
 {
 	construct( objects );
@@ -14,7 +23,7 @@ void BVH::construct( std::vector<const Object *> objects )
 {
 	m_objects = objects;
 	if( m_objects.size() > 0 ){
-		m_root.construct( m_objects, 0, m_objects.size() - 1 );
+		m_root.construct( m_objects, 0, m_objects.size() );
 	}
 }
 
@@ -68,26 +77,45 @@ BVH::Node::Node( std::vector<const Object *> &objects, size_t left, size_t right
 void BVH::Node::construct( std::vector<const Object *> &objects, size_t left, size_t right )
 {
 	// Set AABB for node.
-	aabb = objects[left]->getAABB();
-	for( size_t i = left + 1; i <= right; ++i ){
-		aabb.extend( objects[i]->getAABB() );
+	aabb = calculateAABB( objects, left, right );
+
+	// Calculate best possible split, based on a SAH.
+	float inverseParentSurface = 1.f / aabb.getSurface();
+
+	size_t bestAxis = 3;
+	size_t splitIndex = 0;
+	float cost = right - left;
+
+	// Every axis.
+	for( size_t axis = 0; axis < 3; ++axis ){
+		std::sort( objects.begin() + left, objects.begin() + right,
+		           [axis](const Object *lhs, const Object *rhs){ return lhs->getAABB().getCenter()[axis] < rhs->getAABB().getCenter()[axis]; } );
+
+		// Iterate over all possible splits and save if better than any found yet.
+		for( size_t i = left + 1; i < right; ++i ){
+			float surfaceLeft = calculateAABB( objects, left, i ).getSurface();
+			float surfaceRight = calculateAABB( objects, i, right ).getSurface();
+
+			float newCost = 2.f + ( surfaceLeft * ( i - left ) + surfaceRight * ( right - i ) ) * inverseParentSurface;
+			if( newCost < cost ){
+				cost = newCost;
+				bestAxis = axis;
+				splitIndex = i;
+			}
+		}
 	}
 
-	if( right - left + 1 > ObjectsPerLeaf ){
+	if( bestAxis < 3 ){
 		// Node is a branch.
-		// Sort along the longest axis and split at median.
-		glm::vec3 size = aabb.getSize();
-		size_t axis = size.x > size.y && size.x > size.z ? 0 : size.y > size.z ? 1 : 0;
 		std::sort( objects.begin() + left, objects.begin() + right,
-		           [=](const Object *lhs, const Object *rhs){ return lhs->getAABB().getCenter()[axis] < rhs->getAABB().getCenter()[axis]; } );
+		           [bestAxis](const Object *lhs, const Object *rhs){ return lhs->getAABB().getCenter()[bestAxis] < rhs->getAABB().getCenter()[bestAxis]; } );
 
-		size_t middle = ( left + right ) / 2;
-		this->left.reset( new Node( objects, left, middle ) );
-		this->right.reset( new Node( objects, middle + 1, right ) );
+		this->left.reset( new Node( objects, left, splitIndex ) );
+		this->right.reset( new Node( objects, splitIndex, right ) );
 	} else {
-		// Node is a leaf;
+		// Node is a leaf.
 		ptr = left;
-		numChilds = right - left + 1;
+		numChilds = right - left;
 	}
 }
 

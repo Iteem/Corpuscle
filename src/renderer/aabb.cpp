@@ -28,6 +28,12 @@ float AABB::getVolume() const
 	return size.x * size.y * size.z;
 }
 
+float AABB::getSurface() const
+{
+	glm::vec3 size = getSize();
+	return 2.f * ( size.x * size.y + size.x * size.z + size.y * size.z );
+}
+
 void AABB::extend( const AABB& other )
 {
 	lower = glm::min( lower, other.lower );

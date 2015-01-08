@@ -13,7 +13,9 @@ class AABB
 
 		glm::vec3 getSize() const;
 		glm::vec3 getCenter() const;
+
 		float getVolume() const;
+		float getSurface() const;
 
 		void extend( const AABB& other );
 
