@@ -1,6 +1,8 @@
 #include "bvh.hpp"
 
 #include <iostream>
+#include <forward_list>
+
 #include <glm/gtx/string_cast.hpp>
 
 BVH::BVH( std::vector<const Object *> objects )
@@ -18,7 +20,39 @@ void BVH::construct( std::vector<const Object *> objects )
 
 std::pair<float, const Object *> BVH::getCollision( const Ray &ray, const Object *prevObject ) const
 {
-	return m_root.getCollision( m_objects, ray, prevObject );
+	std::pair<float, const Object *> collisionPair( inf, nullptr );
+
+	std::forward_list<const Node*> nodeStack; // Stack of nodes which are still to check.
+	nodeStack.emplace_front( &m_root );
+
+	while( !nodeStack.empty() ){
+		const Node *node = *(nodeStack.begin());
+		nodeStack.pop_front();
+
+		// Skip if an earlier intersection was already found (or there is no intersection at all).
+		float t = node->aabb.intersect( ray );
+		if( t >= collisionPair.first ){
+			continue;
+		}
+
+		// Check actual objects for collision in leafs.
+		if( node->isLeaf() ){
+			for( unsigned int i = node->ptr; i < node->ptr + node->numChilds; ++i ){
+				float tmp = m_objects[i]->intersect( ray );
+				if( tmp < collisionPair.first && tmp > 0.f && m_objects[i] != prevObject ) {
+					collisionPair.first = tmp;
+					collisionPair.second = m_objects[i];
+				}
+			}
+		}
+		else {
+			nodeStack.push_front( node->left.get() );
+			nodeStack.push_front( node->right.get() );
+		}
+
+	}
+
+	return collisionPair;
 }
 
 void BVH::print()
@@ -60,33 +94,6 @@ void BVH::Node::construct( std::vector<const Object *> &objects, size_t left, si
 bool BVH::Node::isLeaf() const
 {
 	return numChilds != 0;
-}
-
-std::pair<float, const Object *> BVH::Node::getCollision( const std::vector<const Object *> &objects, const Ray &ray, const Object *prevObject ) const
-{
-	if( aabb.intersect( ray ) == inf ){
-		return std::make_pair( inf, nullptr );
-	}
-
-	if( isLeaf() ){
-		float t = inf;
-		const Object *obj = nullptr;
-		for( unsigned int i = 0; i < objects.size(); ++i ){
-			float tmp = objects[i]->intersect( ray );
-
-			if( tmp < t && tmp > 0.f && objects[i] != prevObject ) {
-				t = tmp;
-				obj = objects[i];
-			}
-		}
-		return std::make_pair( t, obj );
-	}
-	else {
-		auto leftPair = left->getCollision( objects, ray, prevObject );
-		auto rightPair = right->getCollision( objects, ray, prevObject );
-
-		return leftPair.first < rightPair.first ? leftPair : rightPair;
-	}
 }
 
 void BVH::Node::print(std::string indent)

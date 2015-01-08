@@ -29,8 +29,6 @@ class BVH
 			void construct( std::vector<const Object *> &objects, size_t left, size_t right );
 			bool isLeaf() const;
 
-			std::pair<float, const Object *> getCollision( const std::vector<const Object *> &objects, const Ray &ray, const Object *prevObject ) const;
-
 			void print(std::string indent);
 
 			static const unsigned int ObjectsPerLeaf = 5;

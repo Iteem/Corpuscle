@@ -126,10 +126,10 @@ bool Scene::loadFromJSON( const std::string &path )
 		Chunk chunk;
 		if( chunk.load( nbtPath, 0, 0 ) ){
 			for( int x = 0; x < 16; ++x ){
-				for( int y = 80; y < 256; ++y ){
+				for( int y = 0; y < 256; ++y ){
 					for( int z = 0; z < 16; ++z ){
 						if( chunk.getBlock( glm::uvec3( x, y, z ) ).first != 0 ){
-							m_objects.emplace_back( make_unique<Cuboid>( glm::vec3(x,y,z), glm::vec3( x+1 , y + 1, z + 1), glm::vec3(1,1,1) ) );
+							m_objects.emplace_back( make_unique<Cuboid>( glm::vec3(x,y,z), glm::vec3( x + 1 , y + 1, z + 1), glm::vec3(1,1,1) ) );
 						}
 					}
 				}
@@ -153,7 +153,7 @@ bool Scene::loadFromJSON( const std::string &path )
 
 	// Construct BVH.
 	m_bvh.construct( getObjects() );
-	m_bvh.print();
+	//m_bvh.print();
 
     return true;
 }
