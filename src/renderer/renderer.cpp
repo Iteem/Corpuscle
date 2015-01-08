@@ -86,7 +86,7 @@ glm::vec3 Renderer::radiance( Ray ray, int depth, const Object *prevObject, floa
 
 	// maximal depth, return emission only
 	if( depth <= 0 ){
-		return obj->getEmission();
+		return obj->getEmission() * emission;
 	}
 
 	glm::vec3 directLight;
@@ -105,8 +105,8 @@ glm::vec3 Renderer::radiance( Ray ray, int depth, const Object *prevObject, floa
 			// Direct lighting.
 			for( auto light : m_scene->getLights() ){
 				auto rayAreaPair( light->createRayToObject( m_gen, ray.origin ) );
-				if( m_scene->getCollision( rayAreaPair.first, nullptr ).second == light ){
-					directLight += rayAreaPair.second / PI * std::max( 0.f, glm::dot( rayAreaPair.first.direction, normal ) ) * ( color * light->getEmission() );
+				if( m_scene->getCollision( rayAreaPair.first, obj ).second == light ){
+					directLight += rayAreaPair.second / PI * std::max( 0.f, glm::dot( rayAreaPair.first.direction, normal ) ) * light->getEmission();
 				}
 			}
 
@@ -120,5 +120,5 @@ glm::vec3 Renderer::radiance( Ray ray, int depth, const Object *prevObject, floa
 	}
 
 
-	return obj->getEmission() * emission  + directLight + ( color * radiance( ray, depth - 1, obj, newEmission ) );
+	return obj->getEmission() * emission + color * ( directLight + radiance( ray, depth - 1, obj, newEmission ) );
 }
