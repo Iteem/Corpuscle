@@ -16,66 +16,8 @@ Chunk::~Chunk()
 {
 }
 
-
-template<typename T>
-T parse_value( std::vector<char>::const_iterator &it )
+bool Chunk::load( const NBT& nbt )
 {
-    std::vector<char> buf( it, it + sizeof( T ) );
-    it += sizeof( T );
-    std::reverse( buf.begin(), buf.end() );
-    return *( reinterpret_cast<T *>( buf.data() ) );
-}
-
-bool Chunk::load( const std::string &path, int x, int z )
-{
-	// Construct region-file name.
-	int regionX = std::floor( static_cast<float>( x ) / 32.f );
-	int regionZ = std::floor( static_cast<float>( z ) / 32.f );
-
-	x -= regionX * 32;
-	z -= regionZ * 32;
-
-	std::string filePath( path + "/region/r." + std::to_string(regionX ) + "." + std::to_string( regionZ ) + ".mca" );
-
-	std::ifstream file( filePath, std::ios::binary );
-
-	if( !file.is_open() ){
-		std::cout << "Failed to open file: " << filePath << std::endl;
-		return false;
-	}
-
-	// Look up the chunk in the location table.
-	unsigned int pos = ( x % 32  + ( z % 32 ) * 32 ) * 4;
-	file.seekg( pos );
-
-	std::vector<char> buf(4);
-	file.read( buf.data(), 4 );
-	auto it = buf.cbegin();
-	auto meta = parse_value<int32_t>( it );
-
-	if( meta == 0 ){
-		return false;
-	}
-
-	int offset = meta >> 8;
-	int size = meta & 0xFF;
-
-	// Load the chunk.
-	file.seekg( offset * 4096 );
-	file.read( buf.data(), 4 );
-	it = buf.cbegin();
-	size = parse_value<int32_t>( it );
-	file.read( buf.data(), 1 );
-	it = buf.cbegin();
-	parse_value<int8_t>( it ); // The compression is always zlib...
-
-	buf.resize( size );
-	file.read( buf.data(), size );
-
-	NBT nbt;
-	nbt.loadFromMemory( buf );
-	//nbt.printNBT();
-
 	m_blocks.resize( 256 * 16 * 16, 0 );
 	m_data.resize( 256 * 16 * 16, 0 );
 
@@ -111,7 +53,7 @@ bool Chunk::load( const std::string &path, int x, int z )
 	return true;
 }
 
-std::pair<uint8_t, uint8_t> Chunk::getBlock( glm::vec3 pos )
+std::pair<uint8_t, uint8_t> Chunk::getBlock( glm::ivec3 pos ) const
 {
 	if( pos.x < 0 || pos.x >= 16 ||  pos.x < 0 || pos.y >= 256 || pos.z < 0 || pos.z >= 16){
 		return std::make_pair( 0, 0 );
@@ -120,23 +62,3 @@ std::pair<uint8_t, uint8_t> Chunk::getBlock( glm::vec3 pos )
 	size_t index = pos.y * 16 * 16 + pos.z * 16 + pos.x;
 	return std::make_pair( m_blocks[index], m_data[index] );
 }
-
-bool Chunk::isBlockVisible( glm::vec3 pos )
-{
-	if( getBlock( pos ).first == 0 ){
-		return false;
-	}
-
-	for( int x = -1; x <= 1; ++x ){
-		for( int y = -1; y <= 1; ++y ){
-			for( int z = -1; z <= 1; ++z ){
-				if( getBlock( pos + glm::vec3( x, y, z ) ).first == 0 ){
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
-}
-

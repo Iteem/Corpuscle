@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 #include <SFML/Graphics/Image.hpp>
 
-#include "nbt/chunk.hpp"
+#include "nbt/map.hpp"
 #include "cuboid.hpp"
 #include "sphere.hpp"
 #include "utility.hpp"
@@ -123,12 +123,12 @@ bool Scene::loadFromJSON( const std::string &path )
 	// Load NBT.
 	std::string nbtPath = pt.get( "nbt.path", "" );
 	if( nbtPath != "" ){
-		Chunk chunk;
-		if( chunk.load( nbtPath, 0, 0 ) ){
-			for( int x = 0; x < 16; ++x ){
+		Map map;
+		if( map.load( nbtPath, glm::ivec2( -1, -1 ), glm::ivec2( 1, 1 ) ) ){
+			for( int x = -1*16; x < 2*16; ++x ){
 				for( int y = 0; y < 256; ++y ){
-					for( int z = 0; z < 16; ++z ){
-						if( chunk.isBlockVisible( glm::vec3( x, y, z ) ) ){
+					for( int z = -1*16; z < 2*16; ++z ){
+						if( map.isBlockVisible( glm::ivec3( x, y, z ) ) ){
 							m_objects.emplace_back( make_unique<Cuboid>( glm::vec3(x,y,z), glm::vec3( x + 1 , y + 1, z + 1), glm::vec3( 0.5f, 0.5f, 0.5f ) ) );
 						}
 					}
@@ -136,6 +136,8 @@ bool Scene::loadFromJSON( const std::string &path )
 			}
 		}
 	}
+
+	std::cout << m_objects.size() << " objects loaded." << std::endl;
 
 	// Load camera.
 	m_camera.setPosition( parseVector( pt.get( "camera.position", "" ), glm::vec3( 0.f, 0.f, 0.f ) ) );
@@ -153,7 +155,7 @@ bool Scene::loadFromJSON( const std::string &path )
 
 	// Construct BVH.
 	m_bvh.construct( getObjects() );
-	m_bvh.print();
+	//m_bvh.print();
 
     return true;
 }

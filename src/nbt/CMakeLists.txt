@@ -8,9 +8,11 @@ include_directories( ${INC_DIR} )
 
 set( SOURCES
 	${INC_DIR}/chunk.hpp
+	${INC_DIR}/map.hpp
 	${INC_DIR}/nbt.hpp
 	${INC_DIR}/node.hpp
 	${SRC_DIR}/chunk.cpp
+	${SRC_DIR}/map.cpp
 	${SRC_DIR}/nbt.cpp
 	${SRC_DIR}/node.cpp
 )
