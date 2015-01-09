@@ -40,12 +40,6 @@ std::pair<float, const Object *> BVH::getCollision( const Ray &ray, const Object
 		const Node *node = *(nodeStack.begin());
 		nodeStack.pop_front();
 
-		// Skip if an earlier intersection was already found (or there is no intersection at all).
-		auto t = node->aabb.intersect( ray.origin, invdir );
-		if( t.first >= collisionPair.first || t.second < 0.f ){
-			continue;
-		}
-
 		// Check actual objects for collision in leafs.
 		if( node->isLeaf() ){
 			for( unsigned int i = node->ptr; i < node->ptr + node->numChilds; ++i ){
@@ -57,8 +51,22 @@ std::pair<float, const Object *> BVH::getCollision( const Ray &ray, const Object
 			}
 		}
 		else {
-			nodeStack.push_front( node->left.get() );
-			nodeStack.push_front( node->right.get() );
+			auto first = node->left.get();
+			auto second = node->right.get();
+
+			auto t1 = first->aabb.intersect( ray.origin, invdir );
+			auto t2 = second->aabb.intersect( ray.origin, invdir );
+			if( t2.first > t1.first ){
+				std::swap( first, second );
+				std::swap( t1, t2 );
+			}
+			// Skip if an earlier intersection was already found (or there is no intersection at all).
+			if( t1.first < collisionPair.first && t1.second > 0.f ){
+				nodeStack.push_front( first );
+			}
+			if( t2.first < collisionPair.first && t2.second > 0.f ){
+				nodeStack.push_front( second );
+			}
 		}
 	}
 
