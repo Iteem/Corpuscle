@@ -1,6 +1,8 @@
 #ifndef AABB_HPP_INCLUDED
 #define AABB_HPP_INCLUDED
 
+#include <utility>
+
 #include <glm/glm.hpp>
 
 #include "ray.hpp"
@@ -19,8 +21,8 @@ class AABB
 
 		void extend( const AABB& other );
 
-		float intersect( const glm::vec3& origin, const glm::vec3& invdir ) const;
-		float intersect( const Ray& ray ) const;
+		std::pair<float, float> intersect( const glm::vec3& origin, const glm::vec3& invdir ) const;
+		std::pair<float, float> intersect( const Ray& ray ) const;
 
 		glm::vec3 lower;
 		glm::vec3 upper;

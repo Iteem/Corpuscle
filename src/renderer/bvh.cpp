@@ -41,8 +41,8 @@ std::pair<float, const Object *> BVH::getCollision( const Ray &ray, const Object
 		nodeStack.pop_front();
 
 		// Skip if an earlier intersection was already found (or there is no intersection at all).
-		float t = node->aabb.intersect( ray.origin, invdir );
-		if( t >= collisionPair.first ){
+		auto t = node->aabb.intersect( ray.origin, invdir );
+		if( t.first >= collisionPair.first || t.second < 0.f ){
 			continue;
 		}
 
@@ -60,7 +60,6 @@ std::pair<float, const Object *> BVH::getCollision( const Ray &ray, const Object
 			nodeStack.push_front( node->left.get() );
 			nodeStack.push_front( node->right.get() );
 		}
-
 	}
 
 	return collisionPair;

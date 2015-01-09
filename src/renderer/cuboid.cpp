@@ -22,37 +22,7 @@ Cuboid::~Cuboid()
 
 float Cuboid::intersect( const Ray& ray ) const
 {
-	glm::vec3 invdir( 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z );
-
-	auto t = std::make_pair<float, float>( ( aabb.lower.x - ray.origin.x) * invdir.x, ( aabb.upper.x - ray.origin.x) * invdir.x );
-	if( invdir.x < 0.f )
-		std::swap( t.first, t.second );
-
-	auto ty = std::make_pair<float, float>( ( aabb.lower.y - ray.origin.y) * invdir.y, ( aabb.upper.y - ray.origin.y) * invdir.y );
-	if( invdir.y < 0.f )
-		std::swap( ty.first, ty.second );
-
-	if ((t.first > ty.second) || (ty.first > t.second))
-		return inf;
-
-	if (ty.first > t.first)
-		t.first = ty.first;
-	if (ty.second < t.second)
-		t.second = ty.second;
-
-	auto tz = std::make_pair<float, float>( ( aabb.lower.z - ray.origin.z) * invdir.z, ( aabb.upper.z - ray.origin.z) * invdir.z );
-	if( invdir.z < 0.f )
-		std::swap( tz.first, tz.second );
-
-	if ((t.first > tz.second) || (tz.first > t.second))
-		return inf;
-
-	if (tz.first > t.first)
-		t.first = tz.first;
-	if (tz.second < t.second)
-		t.second = tz.second;
-
-	return t.first;
+	return aabb.intersect( ray ).first;
 }
 
 
