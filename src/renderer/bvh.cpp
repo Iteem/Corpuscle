@@ -79,30 +79,43 @@ BVH::Node::Node( std::vector<const Object *> &objects, size_t left, size_t right
 void BVH::Node::construct( std::vector<const Object *> &objects, size_t left, size_t right )
 {
 	// Set AABB for node.
-	aabb = calculateAABB( objects, left, right );
+	aabb = objects[left]->getAABB();
+	for( size_t i = left + 1; i < right; ++i ){
+		aabb.extend( objects[i]->getAABB() );
+	}
 
 	// Calculate best possible split, based on a SAH.
 	float inverseParentSurface = 1.f / aabb.getSurface();
+	size_t numObjects = right - left;
 
 	size_t bestAxis = 3;
 	size_t splitIndex = 0;
-	float cost = right - left;
+	float cost = numObjects;
 
 	// Every axis.
 	for( size_t axis = 0; axis < 3; ++axis ){
 		std::sort( objects.begin() + left, objects.begin() + right,
 		           [axis](const Object *lhs, const Object *rhs){ return lhs->getAABB().getCenter()[axis] < rhs->getAABB().getCenter()[axis]; } );
 
-		// Iterate over all possible splits and save if better than any found yet.
-		for( size_t i = left + 1; i < right; ++i ){
-			float surfaceLeft = calculateAABB( objects, left, i ).getSurface();
-			float surfaceRight = calculateAABB( objects, i, right ).getSurface();
+		// Calculate and cache the AABB areas.
+		std::vector<AABB> aabbLeft( numObjects ), aabbRight( numObjects );
+		aabbLeft[0] = objects[left]->getAABB();
+		aabbRight[0] = objects[right - 1]->getAABB();
+		for( size_t i = 1; i < numObjects; ++i ){
+			aabbLeft[i] = aabbLeft[i - 1];
+			aabbLeft[i].extend( objects[left + i]->getAABB() );
 
-			float newCost = 2.f + ( surfaceLeft * ( i - left ) + surfaceRight * ( right - i ) ) * inverseParentSurface;
+			aabbRight[i] = aabbRight[i - 1];
+			aabbRight[i].extend( objects[right - 1 - i]->getAABB() );
+		}
+
+		// Iterate over all possible splits and save if better than any found yet.
+		for( size_t i = 1; i < numObjects; ++i ){
+			float newCost = 2.f + ( aabbLeft[i - 1].getSurface() * i + aabbRight[numObjects - i].getSurface() * ( numObjects - i ) ) * inverseParentSurface;
 			if( newCost < cost ){
 				cost = newCost;
 				bestAxis = axis;
-				splitIndex = i;
+				splitIndex = left + i;
 			}
 		}
 	}
@@ -117,7 +130,7 @@ void BVH::Node::construct( std::vector<const Object *> &objects, size_t left, si
 	} else {
 		// Node is a leaf.
 		ptr = left;
-		numChilds = right - left;
+		numChilds = numObjects;
 	}
 }
 
