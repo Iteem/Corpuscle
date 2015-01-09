@@ -34,12 +34,14 @@ std::pair<float, const Object *> BVH::getCollision( const Ray &ray, const Object
 	std::forward_list<const Node*> nodeStack; // Stack of nodes which are still to check.
 	nodeStack.emplace_front( &m_root );
 
+	glm::vec3 invdir = 1.f / ray.direction;
+
 	while( !nodeStack.empty() ){
 		const Node *node = *(nodeStack.begin());
 		nodeStack.pop_front();
 
 		// Skip if an earlier intersection was already found (or there is no intersection at all).
-		float t = node->aabb.intersect( ray );
+		float t = node->aabb.intersect( ray.origin, invdir );
 		if( t >= collisionPair.first ){
 			continue;
 		}

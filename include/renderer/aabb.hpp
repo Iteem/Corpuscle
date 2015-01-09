@@ -19,6 +19,7 @@ class AABB
 
 		void extend( const AABB& other );
 
+		float intersect( const glm::vec3& origin, const glm::vec3& invdir ) const;
 		float intersect( const Ray& ray ) const;
 
 		glm::vec3 lower;
