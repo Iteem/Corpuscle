@@ -15,16 +15,14 @@
 class RenderManager
 {
 	public:
-		RenderManager( glm::uvec2 dimension, unsigned int numThreads );
+		RenderManager( Scene& scene, unsigned int numThreads );
 		~RenderManager();
 
 		void setUpdateImage( bool updateImage );
 		bool getUpdateImage() const;
 
-		glm::uvec2 getDimension() const;
-		void setDimension( glm::uvec2 dimension );
-
-		bool loadSceneFromFile( const std::string& path );
+		glm::uvec2 getResolution() const;
+		void setResolution( glm::uvec2 resolution );
 
 		void startRendering();
 		void stopRendering();
@@ -39,9 +37,8 @@ class RenderManager
 		void workerFunction();
 		int getNextJob();
 
-		Scene m_scene;
+		Scene& m_scene;
 
-		glm::uvec2 m_dimension;
 		std::atomic_uint m_samples;
 		std::vector< glm::vec3 > m_pixels;
 		sf::Image m_image;

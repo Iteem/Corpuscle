@@ -6,17 +6,6 @@
 
 #include "renderer/rendermanager.hpp"
 
-const sf::Vector2u  r360p(   640,   360 );
-const sf::Vector2u  r480p(   854,   480 );
-const sf::Vector2u  r720p(  1280,   720 );
-const sf::Vector2u r1080p(  1920,  1080 );
-const sf::Vector2u r1440p(  2560,  1440 );
-const sf::Vector2u    r4K(  3840,  2160 );
-const sf::Vector2u    r8K(  7680,  4320 );
-const sf::Vector2u   r16K( 15360,  8640 );
-
-const sf::Vector2u screenSize( r720p );
-const sf::Vector2u renderSize( r720p );
 
 const unsigned int guiSize = 250;
 
@@ -25,13 +14,15 @@ const unsigned int numThreads = 4;
 
 int main()
 {
+	sf::Vector2u windowSize( 1280, 720 );
+	sf::Vector2u renderSize( windowSize );
+
 	// Window.
-	sf::RenderWindow window( sf::VideoMode(screenSize.x + guiSize, screenSize.y), "Corpuscle", sf::Style::Titlebar | sf::Style::Close  );
+	sf::RenderWindow window( sf::VideoMode(windowSize.x + guiSize, windowSize.y), "Corpuscle", sf::Style::Titlebar | sf::Style::Close );
 	window.setVerticalSyncEnabled( true );
 
 	// GUI.
 	sfg::SFGUI sfgui;
-
 
 	auto box = sfg::Box::Create( sfg::Box::Orientation::VERTICAL, 5.f );
 
@@ -48,12 +39,23 @@ int main()
 	alignment->Add( box );
 
 	auto sfgWindow = sfg::Window::Create( sfg::Window::Style::BACKGROUND );
-	sfgWindow->SetPosition( sf::Vector2f( screenSize.x, 0.f ) );
-	sfgWindow->SetRequisition( sf::Vector2f( guiSize, screenSize.y ) );
+	sfgWindow->SetPosition( sf::Vector2f( windowSize.x, 0.f ) );
+	sfgWindow->SetRequisition( sf::Vector2f( guiSize, windowSize.y ) );
 	sfgWindow->Add( alignment );
 
 	sfg::Desktop desktop;
 	desktop.Add( sfgWindow );
+
+	// Load scene.
+	Scene scene;
+	scene.loadFromJSON( "data/scene.json" );
+
+	// Set up RenderManager and start the rendering process.
+	RenderManager rm( scene, numThreads );
+	rm.setUpdateImage( true );
+	rm.startRendering();
+
+	renderSize = sf::Vector2u( rm.getResolution().x, rm.getResolution().y );
 
 	// Set up sprite to display.
 	sf::Image img;
@@ -62,16 +64,11 @@ int main()
 	sf::Texture tex;
 	tex.loadFromImage( img );
 	sf::Sprite sprite( tex );
-	sprite.scale(
-		static_cast<float>(screenSize.x)/static_cast<float>(renderSize.x),
-		static_cast<float>(screenSize.y)/static_cast<float>(renderSize.y)
-	);
-
-	// Set up RenderManager and start the rendering process.
-	RenderManager rm( glm::uvec2( renderSize.x, renderSize.y ), numThreads );
-	rm.loadSceneFromFile( "data/scene.json" );
-	rm.setUpdateImage( true );
-	rm.startRendering();
+	float scale( std::min( static_cast<float>( windowSize.x ) / static_cast<float>( renderSize.x ),
+	                       static_cast<float>( windowSize.y ) / static_cast<float>( renderSize.y ) ) );
+	sprite.scale( scale, scale );
+	sprite.setPosition( std::floor( ( windowSize.x - sprite.getGlobalBounds().width )  / 2.f ),
+	                    std::floor( ( windowSize.y - sprite.getGlobalBounds().height ) / 2.f ) );
 
 	checkButton->GetSignal( sfg::CheckButton::OnStateChange ).Connect( [&]{ rm.setUpdateImage( checkButton->IsActive() ); } );
 

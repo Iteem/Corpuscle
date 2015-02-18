@@ -75,8 +75,8 @@ bool Scene::loadFromJSON( const std::string &path )
 	for( auto obj : pt.get_child( "objects", ptree() ) ){
 
 		// Load common properties.
-        glm::vec3 color    = parseVector( obj.second.get( "color", ""), glm::vec3( 1.f, 1.f, 1.f ) );
-        glm::vec3 emission = parseVector( obj.second.get( "emission", ""), glm::vec3( 0.f, 0.f, 0.f ) );
+        glm::vec3 color    = parseVector3( obj.second.get( "color", ""), glm::vec3( 1.f, 1.f, 1.f ) );
+        glm::vec3 emission = parseVector3( obj.second.get( "emission", ""), glm::vec3( 0.f, 0.f, 0.f ) );
 
         Material material( Material::Type::Diffuse );
 
@@ -94,8 +94,8 @@ bool Scene::loadFromJSON( const std::string &path )
 		std::string type( obj.second.get( "type", "" ) );
 
 		if( type == "cuboid" ){
-			glm::vec3 min = parseVector( obj.second.get( "min", "") );
-			glm::vec3 max = parseVector( obj.second.get( "max", "") );
+			glm::vec3 min = parseVector3( obj.second.get( "min", "") );
+			glm::vec3 max = parseVector3( obj.second.get( "max", "") );
 
 			auto cuboid = make_unique<Cuboid>( min, max, color, emission, material );
 
@@ -110,7 +110,7 @@ bool Scene::loadFromJSON( const std::string &path )
 
 			m_objects.emplace_back( std::move( cuboid ) );
 		} else if ( type == "sphere" ){
-			glm::vec3 pos = parseVector( obj.second.get( "pos", "") );
+			glm::vec3 pos = parseVector3( obj.second.get( "pos", "") );
 			float radius = obj.second.get( "radius", 0.f );
 
 			m_objects.emplace_back( make_unique<Sphere>( radius, pos, color, emission, material ) );
@@ -140,8 +140,9 @@ bool Scene::loadFromJSON( const std::string &path )
 	std::cout << m_objects.size() << " objects loaded." << std::endl;
 
 	// Load camera.
-	m_camera.setPosition( parseVector( pt.get( "camera.position", "" ), glm::vec3( 0.f, 0.f, 0.f ) ) );
-	m_camera.setDirection( glm::normalize( parseVector( pt.get( "camera.direction", "" ), glm::vec3( 0.f, 0.f, -1.f ) ) ) );
+	m_camera.setResolution( parseVector2( pt.get( "camera.resolution", ""), glm::vec2( 1, 1 ) ) );
+	m_camera.setPosition( parseVector3( pt.get( "camera.position", "" ), glm::vec3( 0.f, 0.f, 0.f ) ) );
+	m_camera.setDirection( glm::normalize( parseVector3( pt.get( "camera.direction", "" ), glm::vec3( 0.f, 0.f, -1.f ) ) ) );
 	m_camera.setFOV( pt.get( "camera.FOV", 70.f ) );
 
 	// Cache lights.

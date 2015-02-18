@@ -1,4 +1,12 @@
 {
+	"camera":
+	{
+		"resolution": "1280 720",
+		"position": "50 45 295",
+		"direction": "0 0 -1",
+		"FOV": "27.26"
+	},
+
 	"objects":
 	[
 		{
@@ -79,12 +87,5 @@
 			"color": "1 1 1",
 			"emission": "10 10 10"
 		}
-	],
-	
-	"camera":
-	{
-		"position": "50 45 295",
-		"direction": "0 0 -1",
-		"FOV": "27.26"
-	}
+	]
 }

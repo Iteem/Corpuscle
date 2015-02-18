@@ -6,8 +6,8 @@
 #include "renderer.hpp"
 #include "utility.hpp"
 
-RenderManager::RenderManager( glm::uvec2 dimension, unsigned int numThreads ) :
-	m_dimension( dimension ),
+RenderManager::RenderManager( Scene& scene, unsigned int numThreads ) :
+	m_scene( scene ),
 	m_samples( 0 ),
 	m_updateImage( true ),
 	m_currentLine( 0 ),
@@ -33,25 +33,20 @@ bool RenderManager::getUpdateImage() const
 	return m_updateImage;
 }
 
-glm::uvec2 RenderManager::getDimension() const
+glm::uvec2 RenderManager::getResolution() const
 {
-	return m_dimension;
+	return m_scene.getCamera().getResolution();
 }
 
-void RenderManager::setDimension( glm::uvec2 dimension )
+void RenderManager::setResolution( glm::uvec2 resolution )
 {
 	stopRendering();
 
-	m_dimension = dimension;
-	reset();
-}
+	Camera camera( m_scene.getCamera() );
+	camera.setResolution( resolution );
+	m_scene.setCamera( camera );
 
-bool RenderManager::loadSceneFromFile( const std::string& path )
-{
-	// Reset the everything before loading a new scene.
 	reset();
-
-	return m_scene.loadFromJSON( path );
 }
 
 void RenderManager::startRendering()
@@ -92,12 +87,10 @@ void RenderManager::reset()
 {
 	stopRendering();
 
-	Camera camera;
-	camera.setResolution( m_dimension );
-	m_scene.setCamera( camera );
+	auto resolution = m_scene.getCamera().getResolution();
 
 	// Reset pixel data and make sure not to waste any memory.
-	m_pixels.resize( m_dimension.x * m_dimension.y, glm::vec3() );
+	m_pixels.resize( resolution.x * resolution.y, glm::vec3() );
 	m_pixels.shrink_to_fit();
 
 	m_samples = 0;
@@ -107,8 +100,10 @@ void RenderManager::workerFunction()
 {
 	++m_numRunningThreads;
 
+	auto resolution = m_scene.getCamera().getResolution();
+
 	// Set up renderer
-	Renderer renderer( &m_scene, m_dimension );
+	Renderer renderer( &m_scene, resolution );
 
 	int line;
 	while( true ){
@@ -118,18 +113,20 @@ void RenderManager::workerFunction()
 		if( line == -1 )
 			return;
 
-		renderer.render( m_pixels, glm::ivec2( 0, line ), glm::ivec2( m_dimension.x, 1 ) );
+		renderer.render( m_pixels, glm::ivec2( 0, line ), glm::ivec2( resolution.x, 1 ) );
 	}
 
 }
 
 int RenderManager::getNextJob()
 {
+	auto resolution = m_scene.getCamera().getResolution();
+
 	int ret = -1;
 	do{
 		ret = m_currentLine++;
 
-		if( ret >= static_cast<int>( m_dimension.y ) ){
+		if( ret >= static_cast<int>( resolution.y ) ){
 			// Nothing to do here, wait for the others.
 			unsigned int numRunningThreads = --m_numRunningThreads;
 
@@ -145,14 +142,14 @@ int RenderManager::getNextJob()
 				if( m_updateImage ){
 					std::lock_guard<std::mutex> lock( m_imageMutex );
 
-					if( m_image.getSize().x != m_dimension.x && m_image.getSize().y != m_dimension.y ){
-						m_image.create( m_dimension.x, m_dimension.y );
+					if( m_image.getSize().x != resolution.x && m_image.getSize().y != resolution.y ){
+						m_image.create( resolution.x, resolution.y );
 					}
 
-					for ( unsigned int x = 0; x < m_dimension.x; x++ ){
-						for ( unsigned int y = 0 ; y < m_dimension.y; y++ ){
-							glm::ivec3 col( gammmaCorrected( clamp( m_pixels[x + m_dimension.x * y] / static_cast<float>( m_samples ) ), 1.f/2.2f ) * 255.f );
-							m_image.setPixel( x, m_dimension.y - y - 1, sf::Color( col.x, col.y, col.z) );
+					for ( unsigned int x = 0; x < resolution.x; x++ ){
+						for ( unsigned int y = 0 ; y < resolution.y; y++ ){
+							glm::ivec3 col( gammmaCorrected( clamp( m_pixels[x + resolution.x * y] / static_cast<float>( m_samples ) ), 1.f/2.2f ) * 255.f );
+							m_image.setPixel( x, resolution.y - y - 1, sf::Color( col.x, col.y, col.z) );
 						}
 					}
 				}
@@ -169,14 +166,14 @@ int RenderManager::getNextJob()
 			else {
 				// Wait for more work.
 				std::unique_lock<std::mutex> lock( m_mutex );
-				m_conVar.wait( lock, [this](){ return m_currentLine < m_dimension.y; } );
+				m_conVar.wait( lock, [this, resolution](){ return m_currentLine < resolution.y; } );
 
 				// We're back working.
 				++m_numRunningThreads;
 			}
 
 		}
-	} while( ret >= static_cast<int>( m_dimension.y) );
+	} while( ret >= static_cast<int>( resolution.y ) );
 
 	// Check if we need to stop rendering.
 	if( !m_isRunning )
