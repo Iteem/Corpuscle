@@ -14,6 +14,7 @@ set( SOURCES
 	${INC_DIR}/rendermanager.hpp
 	${INC_DIR}/random.inl
 	${INC_DIR}/ray.hpp
+	${INC_DIR}/ray.inl
 	${INC_DIR}/scene.hpp
 	${INC_DIR}/sphere.hpp
 	${INC_DIR}/utility.hpp
@@ -23,7 +24,6 @@ set( SOURCES
 	${SRC_DIR}/camera.cpp
 	${SRC_DIR}/cuboid.cpp
 	${SRC_DIR}/object.cpp
-	${SRC_DIR}/ray.cpp
 	${SRC_DIR}/renderer.cpp
 	${SRC_DIR}/rendermanager.cpp
 	${SRC_DIR}/scene.cpp

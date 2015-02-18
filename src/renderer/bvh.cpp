@@ -34,8 +34,6 @@ std::pair<float, const Object *> BVH::getCollision( const Ray &ray, const Object
 	std::forward_list<const Node*> nodeStack; // Stack of nodes which are still to check.
 	nodeStack.emplace_front( &m_root );
 
-	glm::vec3 invdir = 1.f / ray.direction;
-
 	while( !nodeStack.empty() ){
 		const Node *node = *(nodeStack.begin());
 		nodeStack.pop_front();
@@ -54,8 +52,8 @@ std::pair<float, const Object *> BVH::getCollision( const Ray &ray, const Object
 			auto first = node->left.get();
 			auto second = node->right.get();
 
-			auto t1 = first->aabb.intersect( ray.origin, invdir );
-			auto t2 = second->aabb.intersect( ray.origin, invdir );
+			auto t1 = first->aabb.intersect( ray );
+			auto t2 = second->aabb.intersect( ray );
 			if( t2.first > t1.first ){
 				std::swap( first, second );
 				std::swap( t1, t2 );

@@ -22,11 +22,11 @@ Sphere::~Sphere()
 float Sphere::intersect( const Ray& ray ) const
 {
 	// This way we can ignore the origin of the ray.
-	glm::vec3 op = center - ray.origin;
+	glm::vec3 op = center - ray.getOrigin();
 
 	// Solve the equation length(t*ray.direction - op) = radius for t.
 	// If there it is no solution, return an uninitialized optional.
-	float b = glm::dot( op, ray.direction );
+	float b = glm::dot( op, ray.getDirection() );
 	float D = b*b - glm::length2( op ) + radius*radius;
 
 	if( D < 0 ){

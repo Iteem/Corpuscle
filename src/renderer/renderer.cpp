@@ -96,27 +96,27 @@ glm::vec3 Renderer::radiance( Ray ray, int depth, const Object *prevObject, floa
 	glm::vec3 normal( obj->collisionNormal( ray ) );
 	glm::vec3 color( obj->collisionColor( ray ) );
 
-	ray.origin = ray.evaluate( t );
+	ray.setOrigin( ray.evaluate( t ) );
 
 	switch( obj->getMaterial().type ){
 		case Material::Type::Diffuse:
-			ray.direction = diffuseReflection( normal );
+			ray.setDirection( diffuseReflection( normal ) );
 
 			// Direct lighting.
 			for( auto light : m_scene->getLights() ){
-				auto rayAreaPair( light->createRayToObject( m_gen, ray.origin ) );
+				auto rayAreaPair( light->createRayToObject( m_gen, ray.getOrigin() ) );
 				if( m_scene->getCollision( rayAreaPair.first, obj ).second == light ){
-					directLight += rayAreaPair.second / PI * std::max( 0.f, glm::dot( rayAreaPair.first.direction, normal ) ) * light->getEmission();
+					directLight += rayAreaPair.second / PI * std::max( 0.f, glm::dot( rayAreaPair.first.getDirection(), normal ) ) * light->getEmission();
 				}
 			}
 
 			newEmission = 0.f;
 			break;
 		case Material::Type::Specular:
-			ray.direction = specularReflection( ray.direction, normal );
+			ray.setDirection( specularReflection( ray.getDirection(), normal ) );
 			break;
 		case Material::Type::Glossy:
-			ray.direction = glm::normalize( (1 - obj->getMaterial().factor) * diffuseReflection( normal ) + obj->getMaterial().factor * specularReflection( ray.direction, normal ) );
+			ray.setDirection( glm::normalize( (1 - obj->getMaterial().factor) * diffuseReflection( normal ) + obj->getMaterial().factor * specularReflection( ray.getDirection(), normal ) ) );
 	}
 
 

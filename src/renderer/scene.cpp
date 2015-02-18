@@ -124,10 +124,10 @@ bool Scene::loadFromJSON( const std::string &path )
 	std::string nbtPath = pt.get( "nbt.path", "" );
 	if( nbtPath != "" ){
 		Map map;
-		if( map.load( nbtPath, glm::ivec2( -3, -3 ), glm::ivec2( 3, 2 ) ) ){
-			for( int x = -3*16; x < 4*16; ++x ){
+		if( map.load( nbtPath, glm::ivec2( -10, -8 ), glm::ivec2( 10, 2 ) ) ){
+			for( int x = -10*16; x < 11*16; ++x ){
 				for( int y = 0; y < 256; ++y ){
-					for( int z = -3*16; z < 4*16; ++z ){
+					for( int z = -8*16; z < 3*16; ++z ){
 						if( map.isBlockVisible( glm::ivec3( x, y, z ) ) ){
 							m_objects.emplace_back( make_unique<Cuboid>( glm::vec3(x,y,z), glm::vec3( x + 1 , y + 1, z + 1), glm::vec3( 0.5f, 0.5f, 0.5f ) ) );
 						}

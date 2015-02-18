@@ -40,14 +40,14 @@ void AABB::extend( const AABB& other )
 	upper = glm::max( upper, other.upper );
 }
 
-std::pair<float, float> AABB::intersect( const glm::vec3& origin, const glm::vec3& invdir ) const
+std::pair<float, float> AABB::intersect( const Ray& ray ) const
 {
-	auto t = std::make_pair<float, float>( ( lower.x - origin.x) * invdir.x, ( upper.x - origin.x) * invdir.x );
-	if( invdir.x < 0.f )
+	auto t = std::make_pair<float, float>( ( lower.x - ray.getOrigin().x) * ray.getInverseDirection().x, ( upper.x - ray.getOrigin().x) * ray.getInverseDirection().x );
+	if( ray.getInverseDirection().x < 0.f )
 		std::swap( t.first, t.second );
 
-	auto ty = std::make_pair<float, float>( ( lower.y - origin.y) * invdir.y, ( upper.y - origin.y) * invdir.y );
-	if( invdir.y < 0.f )
+	auto ty = std::make_pair<float, float>( ( lower.y - ray.getOrigin().y) * ray.getInverseDirection().y, ( upper.y - ray.getOrigin().y) * ray.getInverseDirection().y );
+	if( ray.getInverseDirection().y < 0.f )
 		std::swap( ty.first, ty.second );
 
 	if ((t.first > ty.second) || (ty.first > t.second))
@@ -58,8 +58,8 @@ std::pair<float, float> AABB::intersect( const glm::vec3& origin, const glm::vec
 	if (ty.second < t.second)
 		t.second = ty.second;
 
-	auto tz = std::make_pair<float, float>( ( lower.z - origin.z) * invdir.z, ( upper.z - origin.z) * invdir.z );
-	if( invdir.z < 0.f )
+	auto tz = std::make_pair<float, float>( ( lower.z - ray.getOrigin().z) * ray.getInverseDirection().z, ( upper.z - ray.getOrigin().z) * ray.getInverseDirection().z );
+	if( ray.getInverseDirection().z < 0.f )
 		std::swap( tz.first, tz.second );
 
 	if ((t.first > tz.second) || (tz.first > t.second))
@@ -71,11 +71,4 @@ std::pair<float, float> AABB::intersect( const glm::vec3& origin, const glm::vec
 		t.second = tz.second;
 
 	return t;
-}
-
-std::pair<float, float> AABB::intersect( const Ray& ray ) const
-{
-	glm::vec3 invdir( 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z );
-
-	return intersect( ray.origin, invdir );
 }
