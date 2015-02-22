@@ -17,15 +17,12 @@ T parse_value( std::vector<char>::const_iterator &it )
 
 bool Map::load( const std::string &path, glm::ivec2 min, glm::ivec2 max )
 {
-	for( int x = min.x; x <= max.x ; ++x ){
-		for( int z = min.y; z <= max.y ; ++z ){
-			// Construct region-file name.
-			int regionX = std::floor( static_cast<float>( x ) / 32.f );
-			int regionZ = std::floor( static_cast<float>( z ) / 32.f );
+	// Iterate over all regions.
+	glm::ivec2 regionMin( std::floor( static_cast<float>( min.x ) / 32.f ), std::floor( static_cast<float>( min.y ) / 32.f ) );
+	glm::ivec2 regionMax( std::floor( static_cast<float>( max.x ) / 32.f ), std::floor( static_cast<float>( max.y ) / 32.f ) );
 
-			int chunkX = x - regionX * 32;
-			int chunkZ = z - regionZ * 32;
-
+	for( int regionX = regionMin.x; regionX <= regionMax.x ; ++regionX ){
+		for( int regionZ = regionMin.y; regionZ <= regionMax.y ; ++regionZ ){
 			std::string filePath( path + "/region/r." + std::to_string(regionX ) + "." + std::to_string( regionZ ) + ".mca" );
 
 			std::ifstream file( filePath, std::ios::binary );
@@ -35,40 +32,52 @@ bool Map::load( const std::string &path, glm::ivec2 min, glm::ivec2 max )
 				return false;
 			}
 
-			// Look up the chunk in the location table.
-			unsigned int pos = ( chunkX % 32  + ( chunkZ % 32 ) * 32 ) * 4;
-			file.seekg( pos );
+			// Iterate over all chunks in this region.
+			glm::ivec2 minChunk( std::max( min.x, regionX * 32 ), std::max( min.y, regionZ * 32 ) );
+			glm::ivec2 maxChunk( std::min( max.x, ( regionX + 1 ) * 32 - 1 ), std::min( max.y, ( regionZ + 1 ) * 32 - 1 ) );
 
-			std::vector<char> buf(4);
-			file.read( buf.data(), 4 );
-			auto it = buf.cbegin();
-			auto meta = parse_value<int32_t>( it );
+			for( int x = minChunk.x; x <= maxChunk.x ; ++x ){
+				for( int z = minChunk.y; z <= maxChunk.y ; ++z ){
 
-			if( meta == 0 ){
-				return false;
-			}
+					int chunkX = x - regionX * 32;
+					int chunkZ = z - regionZ * 32;
 
-			int offset = meta >> 8;
-			int size = meta & 0xFF;
+					// Look up the chunk in the location table.
+					unsigned int pos = ( chunkX % 32  + ( chunkZ % 32 ) * 32 ) * 4;
+					file.seekg( pos );
 
-			// Load the chunk.
-			file.seekg( offset * 4096 );
-			file.read( buf.data(), 4 );
-			it = buf.cbegin();
-			size = parse_value<int32_t>( it );
-			file.read( buf.data(), 1 );
-			it = buf.cbegin();
-			parse_value<int8_t>( it ); // The compression is always zlib...
+					std::vector<char> buf(4);
+					file.read( buf.data(), 4 );
+					auto it = buf.cbegin();
+					auto meta = parse_value<int32_t>( it );
 
-			buf.resize( size );
-			file.read( buf.data(), size );
+					if( meta == 0 ){
+						return false;
+					}
 
-			NBT nbt;
-			nbt.loadFromMemory( buf );
+					int offset = meta >> 8;
+					int size = meta & 0xFF;
 
-			if( !m_chunks[x][z].load( nbt ) ){
-				std::cout << "Failed to load chunk." << std::endl;
-				return false;
+					// Load the chunk.
+					file.seekg( offset * 4096 );
+					file.read( buf.data(), 4 );
+					it = buf.cbegin();
+					size = parse_value<int32_t>( it );
+					file.read( buf.data(), 1 );
+					it = buf.cbegin();
+					parse_value<int8_t>( it ); // The compression is always zlib...
+
+					buf.resize( size );
+					file.read( buf.data(), size );
+
+					NBT nbt;
+					nbt.loadFromMemory( buf );
+
+					if( !m_chunks[x][z].load( nbt ) ){
+						std::cout << "Failed to load chunk." << std::endl;
+						return false;
+					}
+				}
 			}
 		}
 	}
