@@ -26,6 +26,18 @@ int main()
 
 	auto box = sfg::Box::Create( sfg::Box::Orientation::VERTICAL, 5.f );
 
+	auto startButton = sfg::Button::Create( "Start" );
+	box->Pack( startButton );
+
+	auto pauseButton = sfg::Button::Create( "Pause" );
+	box->Pack( pauseButton );
+
+	auto entry = sfg::Entry::Create( "data/scene.json" );
+	box->Pack( entry );
+
+	auto loadButton = sfg::Button::Create( "Load" );
+	box->Pack( loadButton );
+
 	auto checkButton = sfg::CheckButton::Create( "Update preview" );
 	checkButton->SetActive( true );
 	box->Pack( checkButton );
@@ -50,25 +62,20 @@ int main()
 	Scene scene;
 	scene.loadFromJSON( "data/scene.json" );
 
-	// Set up RenderManager and start the rendering process.
+	// Set up RenderManager.
 	RenderManager rm( scene, numThreads );
 	rm.setUpdateImage( true );
-	rm.startRendering();
-
-	renderSize = sf::Vector2u( rm.getResolution().x, rm.getResolution().y );
 
 	// Set up sprite to display.
 	sf::Image img;
-	img.create( renderSize.x, renderSize.y, sf::Color::Black );
+	img.create( 1, 1, sf::Color::Black );
 
 	sf::Texture tex;
 	tex.loadFromImage( img );
 	sf::Sprite sprite( tex );
-	float scale( std::min( static_cast<float>( windowSize.x ) / static_cast<float>( renderSize.x ),
-	                       static_cast<float>( windowSize.y ) / static_cast<float>( renderSize.y ) ) );
-	sprite.scale( scale, scale );
-	sprite.setPosition( std::floor( ( windowSize.x - sprite.getGlobalBounds().width )  / 2.f ),
-	                    std::floor( ( windowSize.y - sprite.getGlobalBounds().height ) / 2.f ) );
+
+	startButton->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &RenderManager::startRendering, &rm ) );
+	pauseButton->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &RenderManager::stopRendering, &rm ) );
 
 	checkButton->GetSignal( sfg::CheckButton::OnStateChange ).Connect( [&]{ rm.setUpdateImage( checkButton->IsActive() ); } );
 
@@ -78,10 +85,19 @@ int main()
 
 	unsigned int prevSamples = 0;
 
+	loadButton->GetSignal( sfg::Button::OnLeftClick ).Connect( [&]{
+		rm.stopRendering();
+
+		if( !scene.loadFromJSON( entry->GetText() ) ){
+			window.close();
+			return;
+		}
+		prevSamples = 0;
+		rm.reset();
+	} );
+
 	// Main loop.
 	while( window.isOpen() ){
-		unsigned int samples = rm.getSamples();
-
 		float frameTime = frameClock.restart().asSeconds();
 
 		// Event loop.
@@ -102,14 +118,28 @@ int main()
 
 		desktop.Update( frameTime );
 
+		unsigned int samples = rm.getSamples();
+
 		if( prevSamples != samples ){
 			int sps = std::floor( renderSize.x * renderSize.y / renderPassClock.restart().asSeconds() );
 			prevSamples = samples;
 
 			if( checkButton->IsActive() ){
 				// Update Image.
+
 				img = rm.getImage();
 				tex.loadFromImage( img );
+
+				// Update sprite in case the image dimension changed.
+				sprite.setTexture( tex, true );
+
+				renderSize = sf::Vector2u( rm.getResolution().x, rm.getResolution().y );
+
+				float scale( std::min( static_cast<float>( windowSize.x ) / static_cast<float>( renderSize.x ),
+									   static_cast<float>( windowSize.y ) / static_cast<float>( renderSize.y ) ) );
+				sprite.setScale( scale, scale );
+				sprite.setPosition( std::floor( ( windowSize.x - sprite.getGlobalBounds().width )  / 2.f ),
+									std::floor( ( windowSize.y - sprite.getGlobalBounds().height ) / 2.f ) );
 			}
 
 			spsLabel->SetText( "SPS: " + std::to_string( sps ) );

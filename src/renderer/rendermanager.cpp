@@ -7,7 +7,7 @@
 #include "utility.hpp"
 
 RenderManager::RenderManager( Scene& scene, unsigned int numThreads ) :
-	m_scene( scene ),
+	m_scene( &scene ),
 	m_samples( 0 ),
 	m_updateImage( true ),
 	m_currentLine( 0 ),
@@ -23,6 +23,18 @@ RenderManager::~RenderManager()
 	stopRendering();
 }
 
+void RenderManager::setScene( Scene& scene )
+{
+	stopRendering();
+	m_scene = &scene;
+	reset();
+}
+
+Scene *RenderManager::getScene() const
+{
+	return m_scene;
+}
+
 void RenderManager::setUpdateImage( bool updateImage )
 {
 	m_updateImage = updateImage;
@@ -35,16 +47,16 @@ bool RenderManager::getUpdateImage() const
 
 glm::uvec2 RenderManager::getResolution() const
 {
-	return m_scene.getCamera().getResolution();
+	return m_scene->getCamera().getResolution();
 }
 
 void RenderManager::setResolution( glm::uvec2 resolution )
 {
 	stopRendering();
 
-	Camera camera( m_scene.getCamera() );
+	Camera camera( m_scene->getCamera() );
 	camera.setResolution( resolution );
-	m_scene.setCamera( camera );
+	m_scene->setCamera( camera );
 
 	reset();
 }
@@ -64,6 +76,9 @@ void RenderManager::stopRendering()
 	for( auto& thread : m_threads ){
 		thread.join();
 	}
+
+	m_numRunningThreads = 0;
+	m_threads.clear();
 }
 
 bool RenderManager::isRendering() const
@@ -87,23 +102,25 @@ void RenderManager::reset()
 {
 	stopRendering();
 
-	auto resolution = m_scene.getCamera().getResolution();
+	auto resolution = m_scene->getCamera().getResolution();
 
 	// Reset pixel data and make sure not to waste any memory.
 	m_pixels.resize( resolution.x * resolution.y, glm::vec3() );
 	m_pixels.shrink_to_fit();
+	std::fill( m_pixels.begin(), m_pixels.end(), glm::vec3() );
 
 	m_samples = 0;
+	m_currentLine = 0;
 }
 
 void RenderManager::workerFunction()
 {
 	++m_numRunningThreads;
 
-	auto resolution = m_scene.getCamera().getResolution();
+	auto resolution = m_scene->getCamera().getResolution();
 
 	// Set up renderer
-	Renderer renderer( &m_scene, resolution );
+	Renderer renderer( m_scene, resolution );
 
 	int line;
 	while( true ){
@@ -120,7 +137,11 @@ void RenderManager::workerFunction()
 
 int RenderManager::getNextJob()
 {
-	auto resolution = m_scene.getCamera().getResolution();
+	// Check if we need to stop rendering.
+	if( !m_isRunning )
+		return -1;
+
+	auto resolution = m_scene->getCamera().getResolution();
 
 	int ret = -1;
 	do{
@@ -174,10 +195,6 @@ int RenderManager::getNextJob()
 
 		}
 	} while( ret >= static_cast<int>( resolution.y ) );
-
-	// Check if we need to stop rendering.
-	if( !m_isRunning )
-		return -1;
 
 	return ret;
 }

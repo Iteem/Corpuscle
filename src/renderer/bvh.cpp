@@ -27,6 +27,12 @@ void BVH::construct( std::vector<const Object *> objects )
 	}
 }
 
+void BVH::clear()
+{
+	m_objects.clear();
+	m_root = Node();
+}
+
 std::pair<float, const Object *> BVH::getCollision( const Ray &ray, const Object *prevObject ) const
 {
 	std::pair<float, const Object *> collisionPair( inf, nullptr );

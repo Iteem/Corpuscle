@@ -25,6 +25,8 @@ class Scene
 
 		bool loadFromJSON( const std::string &path );
 
+		void clear();
+
 	 private:
 	 	Camera m_camera;
 	 	BVH m_bvh;

@@ -15,6 +15,7 @@ class BVH
 		BVH( std::vector<const Object *> objects );
 
 		void construct( std::vector<const Object *> objects );
+		void clear();
 
 		std::pair<float, const Object *> getCollision( const Ray &ray, const Object *prevObject ) const;
 

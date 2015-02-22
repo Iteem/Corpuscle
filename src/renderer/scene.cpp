@@ -71,6 +71,8 @@ bool Scene::loadFromJSON( const std::string &path )
 		return false;
 	}
 
+	clear();
+
 	// Iterate over all objects.
 	for( auto obj : pt.get_child( "objects", ptree() ) ){
 
@@ -184,4 +186,12 @@ const Camera& Scene::getCamera() const
 void Scene::setCamera( const Camera& camera )
 {
 	m_camera = camera;
+}
+
+void Scene::clear()
+{
+	m_bvh.clear();
+
+	m_objects.clear();
+	m_lights.clear();
 }

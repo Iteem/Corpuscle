@@ -18,6 +18,9 @@ class RenderManager
 		RenderManager( Scene& scene, unsigned int numThreads );
 		~RenderManager();
 
+		void setScene( Scene& scene );
+		Scene *getScene() const;
+
 		void setUpdateImage( bool updateImage );
 		bool getUpdateImage() const;
 
@@ -37,7 +40,7 @@ class RenderManager
 		void workerFunction();
 		int getNextJob();
 
-		Scene& m_scene;
+		Scene *m_scene;
 
 		std::atomic_uint m_samples;
 		std::vector< glm::vec3 > m_pixels;
