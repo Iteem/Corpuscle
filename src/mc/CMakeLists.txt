@@ -2,8 +2,8 @@
 find_package( zlib REQUIRED )
 include_directories( ${SFML_INCLUDE} ${Boost_INCLUDE_DIRS} )
 
-set( SRC_DIR "${PROJECT_SOURCE_DIR}/src/nbt" )
-set( INC_DIR "${PROJECT_SOURCE_DIR}/include/nbt" )
+set( SRC_DIR "${PROJECT_SOURCE_DIR}/src/mc" )
+set( INC_DIR "${PROJECT_SOURCE_DIR}/include/mc" )
 include_directories( ${INC_DIR} )
 
 set( SOURCES
@@ -17,5 +17,5 @@ set( SOURCES
 	${SRC_DIR}/node.cpp
 )
 
-add_library( corpuscle-nbt ${SOURCES} )
-target_link_libraries( corpuscle-nbt ${SFML_LIBRARIES} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} )
+add_library( corpuscle-mc ${SOURCES} )
+target_link_libraries( corpuscle-mc ${SFML_LIBRARIES} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} )

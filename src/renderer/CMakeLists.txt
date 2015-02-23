@@ -32,4 +32,4 @@ set( SOURCES
 )
 
 add_library( corpuscle-renderer ${SOURCES} )
-target_link_libraries( corpuscle-renderer corpuscle-nbt ${SFML_LIBRARIES} ${Boost_LIBRARIES} )
+target_link_libraries( corpuscle-renderer corpuscle-mc ${SFML_LIBRARIES} ${Boost_LIBRARIES} )

@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 #include <SFML/Graphics/Image.hpp>
 
-#include "nbt/map.hpp"
+#include "mc/map.hpp"
 #include "cuboid.hpp"
 #include "sphere.hpp"
 #include "utility.hpp"
