@@ -56,7 +56,10 @@ int main()
 	sfgWindow->Add( alignment );
 
 	sfg::Desktop desktop;
+	if(!desktop.LoadThemeFromFile("data/gui.theme"))
+		return 1;
 	desktop.Add( sfgWindow );
+	desktop.Refresh();
 
 	// Load scene.
 	Scene scene;
