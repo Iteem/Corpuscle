@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <SFGUI/SFGUI.hpp>
+#include <SFGUI/Widgets.hpp>
 #include <SFML/Graphics.hpp>
 
 #include "renderer/rendermanager.hpp"
