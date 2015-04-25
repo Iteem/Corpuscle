@@ -169,7 +169,8 @@ int RenderManager::getNextJob()
 
 					for ( unsigned int x = 0; x < resolution.x; x++ ){
 						for ( unsigned int y = 0 ; y < resolution.y; y++ ){
-							glm::ivec3 col( gammmaCorrected( clamp( m_pixels[x + resolution.x * y] / static_cast<float>( m_samples ) ), 1.f/2.2f ) * 255.f );
+							glm::ivec3 col(gammaCorrected(
+									clamp(m_pixels[x + resolution.x * y] / static_cast<float>( m_samples )), 1.f / 2.2f) * 255.f );
 							m_image.setPixel( x, resolution.y - y - 1, sf::Color( col.x, col.y, col.z) );
 						}
 					}

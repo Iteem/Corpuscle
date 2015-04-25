@@ -14,7 +14,7 @@ T clamp( T param );
 
 glm::vec3 clamp( glm::vec3 vec );
 
-glm::vec3 gammmaCorrected( glm::vec3 col, float param );
+glm::vec3 gammaCorrected(glm::vec3 col, float param);
 
 template <typename T, typename... Args>
 std::unique_ptr<T> make_unique(Args&&... args);

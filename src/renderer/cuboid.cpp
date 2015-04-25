@@ -197,7 +197,8 @@ void Cuboid::setTexture( const sf::Image& image )
 		for( unsigned int y = 0; y < m_textureSize.y; ++y ){
 			sf::Color col = image.getPixel( x, y );
 			// Textures are gamma-corrected, so don't forget to reverse that.
-			m_texture[ x + y * m_textureSize.x ] = gammmaCorrected( glm::vec3( col.r / 255.f, col.g / 255.f, col.b / 255.f ), 2.2f );
+			m_texture[ x + y * m_textureSize.x ] = gammaCorrected(
+					glm::vec3(col.r / 255.f, col.g / 255.f, col.b / 255.f), 2.2f);
 		}
 	}
 }

@@ -9,7 +9,7 @@ glm::vec3 clamp( glm::vec3 vec )
 					  clamp( vec.z ) );
 }
 
-glm::vec3 gammmaCorrected( glm::vec3 col, float param )
+glm::vec3 gammaCorrected(glm::vec3 col, float param)
 {
 	return glm::vec3( std::pow( col.r, param ),
 					  std::pow( col.g, param ),

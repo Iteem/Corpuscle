@@ -137,14 +137,14 @@ bool Scene::loadFromJSON( const std::string &path )
 							auto col = glm::vec3( 0.5f, 0.5f, 0.5f ) / 10.f;
 							switch( map.getBlock( glm::ivec3( x, y, z ) ).first )
 							{
-								case 1: col = glm::vec3( 0.56f, 0.56f, 0.56f ) / 10.f; break;
-								case 2: col = glm::vec3( 0.34f, 0.71f, 0.20f ) / 10.f; break;
-								case 3: col = glm::vec3( 0.52f, 0.37f, 0.26f ) / 10.f; break;
-								case 8: case 9: col = glm::vec3( 0.11f, 0.31f, 0.95f ) / 10.f; break;
-								case 17: case 162: col = glm::vec3( 0.31f, 0.24f, 0.15f ) / 10.f; break;
-								case 18: case 161: col = glm::vec3( 0.24f, 0.60f, 0.08f ) / 10.f; break;
-								case 99: col = glm::vec3( 0.71f, 0.11f, 0.11f ) / 10.f; break;
-								case 100: col = glm::vec3( 0.57f, 0.43f, 0.33f ) / 10.f; break;
+								case 1: col = gammaCorrected( glm::vec3( 0.56f, 0.56f, 0.56f ), 2.2f ); break;
+								case 2: col = gammaCorrected( glm::vec3( 0.34f, 0.71f, 0.20f ), 2.2f ); break;
+								case 3: col = gammaCorrected( glm::vec3( 0.52f, 0.37f, 0.26f ), 2.2f ); break;
+								case 8: case 9: col = gammaCorrected( glm::vec3( 0.11f, 0.31f, 0.95f ), 2.2f ); break;
+								case 17: case 162: col = gammaCorrected( glm::vec3( 0.31f, 0.24f, 0.15f ), 2.2f ); break;
+								case 18: case 161: col = gammaCorrected( glm::vec3( 0.24f, 0.60f, 0.08f ), 2.2f ); break;
+								case 99: col = gammaCorrected( glm::vec3( 0.71f, 0.11f, 0.11f ), 2.2f ); break;
+								case 100: col = gammaCorrected( glm::vec3( 0.57f, 0.43f, 0.33f ), 2.2f ); break;
 							}
 							m_objects.emplace_back( make_unique<Cuboid>( glm::vec3(x,y,z), glm::vec3( x + 1 , y + 1, z + 1), col ) );
 						}
