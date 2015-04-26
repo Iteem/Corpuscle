@@ -48,6 +48,17 @@ bool Chunk::load( const NBT& nbt )
 				}
 			}
 		}
+
+		auto blockData = std::dynamic_pointer_cast<ByteArrayNode>( compound->data["Data"] )->data;
+
+		for( unsigned int y = 0; y < 16; ++y ){
+			for( unsigned int z = 0; z < 16; ++z ){
+				for( unsigned int x = 0; x < 16; ++x ){
+					unsigned int blockPos = y * 16 * 16 + z * 16 + x;
+					m_data[blockPos + yOffset] = (blockPos % 2 == 0 ? blockData[blockPos/2] : blockData[blockPos/2] >> 4) & 0x0f;
+				}
+			}
+		}
 	}
 
 	return true;

@@ -66,8 +66,8 @@ bool Scene::loadFromJSON( const std::string &path )
 		json_parser::read_json( path, pt );
 	}
 	catch( std::exception &e ){
-		std::cerr << "Failed to load " << path << ": " << std::endl;
-		std::cerr << e.what();
+		std::cerr << "Failed to load " << path << ":" << std::endl;
+		std::cerr << e.what() << std::endl;
 		return false;
 	}
 
@@ -125,6 +125,16 @@ bool Scene::loadFromJSON( const std::string &path )
 	// Load NBT.
 	std::string nbtPath = pt.get( "nbt.path", "" );
 	if( nbtPath != "" ){
+		// Load block description.
+		sf::Image blocks;
+		if( !blocks.loadFromFile( "data/blocks.png" ) ){
+			std::cerr << "Failed to load block color image: data/blocks.png" << std::endl;
+			return false;
+		}
+		if( blocks.getSize().x < 16 && blocks.getSize().y < 255 ){
+			std::cerr << "Image with block colors too small (minimum of 16x255)." << std::endl;
+		}
+
 		glm::ivec2 min = parseVector2( pt.get( "nbt.min", ""), glm::ivec2( 0, 0 ) );
 		glm::ivec2 max = parseVector2( pt.get( "nbt.max", ""), glm::ivec2( 0, 0 ) );
 
@@ -134,18 +144,9 @@ bool Scene::loadFromJSON( const std::string &path )
 				for( int y = 0; y < 256; ++y ){
 					for( int z = min.y * 16; z < ( max.y + 1 ) * 16; ++z ){
 						if( map.isBlockVisible( glm::ivec3( x, y, z ) ) ){
-							auto col = glm::vec3( 0.5f, 0.5f, 0.5f ) / 10.f;
-							switch( map.getBlock( glm::ivec3( x, y, z ) ).first )
-							{
-								case 1: col = gammaCorrected( glm::vec3( 0.56f, 0.56f, 0.56f ), 2.2f ); break;
-								case 2: col = gammaCorrected( glm::vec3( 0.34f, 0.71f, 0.20f ), 2.2f ); break;
-								case 3: col = gammaCorrected( glm::vec3( 0.52f, 0.37f, 0.26f ), 2.2f ); break;
-								case 8: case 9: col = gammaCorrected( glm::vec3( 0.11f, 0.31f, 0.95f ), 2.2f ); break;
-								case 17: case 162: col = gammaCorrected( glm::vec3( 0.31f, 0.24f, 0.15f ), 2.2f ); break;
-								case 18: case 161: col = gammaCorrected( glm::vec3( 0.24f, 0.60f, 0.08f ), 2.2f ); break;
-								case 99: col = gammaCorrected( glm::vec3( 0.71f, 0.11f, 0.11f ), 2.2f ); break;
-								case 100: col = gammaCorrected( glm::vec3( 0.57f, 0.43f, 0.33f ), 2.2f ); break;
-							}
+							auto blockID = map.getBlock( glm::ivec3( x, y, z ) );
+							auto pixel = blocks.getPixel( blockID.second, blockID.first);
+							auto col = gammaCorrected( pixel.a < 128 ? glm::vec3( 0.5f ) : glm::vec3( pixel.r, pixel.g, pixel.b ) / 255.f, 2.2f );
 							m_objects.emplace_back( make_unique<Cuboid>( glm::vec3(x,y,z), glm::vec3( x + 1 , y + 1, z + 1), col ) );
 						}
 					}
