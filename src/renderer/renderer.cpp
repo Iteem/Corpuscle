@@ -81,6 +81,8 @@ glm::vec3 Renderer::radiance( Ray ray, int depth, const Object *prevObject, floa
 
 	// no collision, return black
 	if( t == inf ){
+		if( depth == 5 )
+			return glm::vec3(0.3736, 0.6524, 0.8751);
 		return glm::vec3();
 	}
 
