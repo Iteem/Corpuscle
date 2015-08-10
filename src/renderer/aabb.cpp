@@ -6,6 +6,12 @@ AABB::AABB()
 {
 }
 
+AABB::AABB( glm::vec3 vec ) :
+		lower( vec ),
+		upper( vec )
+{
+}
+
 AABB::AABB( glm::vec3 lower, glm::vec3 upper ) :
 	lower( lower ),
 	upper( upper )
@@ -38,6 +44,27 @@ void AABB::extend( const AABB& other )
 {
 	lower = glm::min( lower, other.lower );
 	upper = glm::max( upper, other.upper );
+}
+
+
+void AABB::extend(const glm::vec3 &vec)
+{
+	lower = glm::min( lower, vec );
+	upper = glm::max( upper, vec );
+}
+
+AABB AABB::transform( const glm::mat4 &mat )
+{
+	AABB ret = AABB( glm::vec3( mat * glm::vec4( lower.x, lower.y, lower.z, 1 ) ) );
+	ret.extend( glm::vec3( mat * glm::vec4( lower.x, lower.y, upper.z, 1 ) ) );
+	ret.extend( glm::vec3( mat * glm::vec4( lower.x, upper.y, lower.z, 1 ) ) );
+	ret.extend( glm::vec3( mat * glm::vec4( lower.x, upper.y, upper.z, 1 ) ) );
+	ret.extend( glm::vec3( mat * glm::vec4( upper.x, lower.y, lower.z, 1 ) ) );
+	ret.extend( glm::vec3( mat * glm::vec4( upper.x, lower.y, upper.z, 1 ) ) );
+	ret.extend( glm::vec3( mat * glm::vec4( upper.x, upper.y, lower.z, 1 ) ) );
+	ret.extend( glm::vec3( mat * glm::vec4( upper.x, upper.y, upper.z, 1 ) ) );
+
+	return ret;
 }
 
 std::pair<float, float> AABB::intersect( const Ray& ray ) const
