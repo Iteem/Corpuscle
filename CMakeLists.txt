@@ -29,6 +29,7 @@ set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/src/mc )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/src/renderer )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/src/ui )
+add_subdirectory( ${PROJECT_SOURCE_DIR}/src/console )
 
 # Copy data directory to build cache directory to be able to run examples from
 # there. Useful for testing stuff.
