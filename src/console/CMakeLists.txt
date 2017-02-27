@@ -8,5 +8,5 @@ set( SOURCES
 )
 
 add_executable( corpuscle-console ${SOURCES})
-target_link_libraries( corpuscle-console ${SFML_LIBRARIES} ${SFGUI_LIBRARY} ${Boost_LIBRARIES} )
+target_link_libraries( corpuscle-console ${SFML_LIBRARIES} ${Boost_LIBRARIES} )
 target_link_libraries( corpuscle-console corpuscle-renderer )
