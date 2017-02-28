@@ -73,19 +73,19 @@
 			"color": "1 1 1",
 			"texture": "data/planks_oak.png"
 		},
-		{   
-			"type": "cuboid",
-			"min": "40 79 40",
-			"max": "60 80 80",
+		{
+			"type": "sphere",
+			"pos": "50 65 60",
+			"radius": "7",
 			"color": "1 1 1",
-			"emission": "10 10 10"
+			"emission": "15 15 15"
 		},
 		{   
-			"type": "cuboid",
-			"min": "40 79 120",
-			"max": "60 80 160",
+			"type": "sphere",
+			"pos": "50 65 120",
+			"radius": "7",
 			"color": "1 1 1",
-			"emission": "10 10 10"
+			"emission": "15 15 15"
 		}
 	]
 }
