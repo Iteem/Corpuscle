@@ -23,6 +23,12 @@ if( CMAKE_COMPILER_IS_GNUCXX )
 	endif()
 endif()
 
+# Linux
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+endif()
+
+
 # Make sure our executables end up in the top directory.
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
 

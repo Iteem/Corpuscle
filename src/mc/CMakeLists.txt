@@ -1,5 +1,5 @@
 # Source files
-find_package( zlib REQUIRED )
+find_package( ZLIB REQUIRED )
 include_directories( ${SFML_INCLUDE} ${Boost_INCLUDE_DIRS} )
 
 set( SRC_DIR "${PROJECT_SOURCE_DIR}/src/mc" )

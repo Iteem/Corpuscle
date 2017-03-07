@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <imgui.h>
-#include <imgui-sfml.h>
+#include <imgui-SFML.h>
 #include <SFML/Graphics.hpp>
 
 #include "renderer/rendermanager.hpp"
