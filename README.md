@@ -6,7 +6,7 @@ Corpuscle is a path tracer.
 
 ## Building
 
-Corpuscle is build using [CMake](https://cmake.org/). The only dependency that must be installed is 
+Corpuscle is build using [CMake](https://cmake.org/). Dependencies that must be installed are zlib, boost and 
 [SFML](http://www.sfml-dev.org/), the other dependencies (imgui and glm) are already included within the repository.
 
 ## Rendering
