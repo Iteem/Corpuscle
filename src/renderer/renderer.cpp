@@ -1,6 +1,7 @@
 #include "renderer.hpp"
 
 #include <ctime>
+#include <iostream>
 
 #include "object.hpp"
 #include "random.hpp"
@@ -100,6 +101,8 @@ glm::vec3 Renderer::radiance( Ray ray, int depth, const Object *prevObject, floa
 
 	ray.setOrigin( ray.evaluate( t ) );
 
+	std::uniform_real_distribution<float> dist( 0.f, 1.f );
+
 	switch( obj->getMaterial().type ){
 		case Material::Type::Diffuse:
 			ray.setDirection( diffuseReflection( normal ) );
@@ -119,6 +122,40 @@ glm::vec3 Renderer::radiance( Ray ray, int depth, const Object *prevObject, floa
 			break;
 		case Material::Type::Glossy:
 			ray.setDirection( glm::normalize( (1 - obj->getMaterial().factor) * diffuseReflection( normal ) + obj->getMaterial().factor * specularReflection( ray.getDirection(), normal ) ) );
+			break;
+		case Material::Type::Glass:
+			auto directionReflected = specularReflection( ray.getDirection(), normal );
+			bool entering = glm::dot( normal, ray.getDirection() ) < 0.f;
+
+			// The index of refraction (IOR) is given by Material.factor, the IOR for air is approximately 1
+			float IORchange = entering ? 1.f / obj->getMaterial().factor : obj->getMaterial().factor;
+			auto trueNormal = entering ? normal : -normal;
+			float ddn = glm::dot( trueNormal, ray.getDirection() );
+			float cos2t = 1.f - IORchange*IORchange * ( 1.f - ddn*ddn );
+
+			// Check for total internal reflection
+			if( cos2t < 0.f ){
+				ray.setDirection( directionReflected );
+				break;
+			}
+
+			// Fresnel using Schlick's approximation
+			auto directionTransmitted = glm::normalize( ( ray.getDirection() * IORchange - trueNormal ) * ( ddn * IORchange + std::sqrt( cos2t ) ) );
+			float a = obj->getMaterial().factor - 1.f;
+			float b = obj->getMaterial().factor + 1.f;
+			float R0 = a*a / (b*b);
+			float c = 1 - ( entering ? -ddn : glm::dot( directionTransmitted, normal ) );
+
+			float Re = R0 + ( 1.f - R0 ) * c*c*c*c*c;
+			float Tr = 1.f - Re;
+
+			if( dist( m_gen ) < Re ) {
+				ray.setDirection( directionReflected );
+			}
+			else {
+				ray.setDirection( directionTransmitted );
+			}
+			break;
 	}
 
 

@@ -15,7 +15,8 @@ public:
 	enum class Type {
 		Diffuse,
 		Specular,
-		Glossy
+		Glossy,
+		Glass
 	};
 
 	Material( Type type );

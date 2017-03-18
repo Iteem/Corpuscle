@@ -90,6 +90,10 @@ bool Scene::loadFromJSON( const std::string &path )
 			material.type = Material::Type::Glossy;
 			material.factor = obj.second.get( "glossiness", 0.5f );
         }
+        else if( materialType == "glass" ){
+	        material.type = Material::Type::Glass;
+	        material.factor = obj.second.get( "ior", 1.5f );
+        }
 
 
 		// Load type dependent properties and add the object to the scene.
